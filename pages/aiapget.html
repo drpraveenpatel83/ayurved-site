@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIAPGET | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
+    <div class="navbar-menu" id="nav-menu">
+      <a href="/">Home</a><a href="/pages/bams.html?year=1">BAMS</a>
+      <a href="/pages/aiapget.html" class="active">AIAPGET</a>
+      <a href="/pages/samhita.html">Samhita</a><a href="/pages/govt-exam.html">Govt Exams</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
+        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+      </div>
+    </div>
+    <button class="navbar-hamburger" id="nav-burger">☰</button>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(135deg,#C0392B,#922B21)">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>AIAPGET</span></div>
+    <h1>🎯 AIAPGET Preparation</h1>
+    <p>Previous Year Questions + Mock Tests</p>
+  </div>
+</div>
+
+<div class="container section">
+
+  <!-- Info box -->
+  <div class="card mb-3" style="border-left:4px solid #C0392B">
+    <h3 style="color:#C0392B;margin-bottom:8px">All India Ayurveda PG Entrance Test</h3>
+    <p class="text-muted" style="font-size:0.9rem">200 MCQs · 3 Hours · Negative Marking. Yahan aapko milenge PYQ papers aur full mock tests.</p>
+  </div>
+
+  <div id="aiapget-main">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', loadAIAPGET);
+
+async function loadAIAPGET() {
+  const main = document.getElementById('aiapget-main');
+
+  if (!Auth.isLoggedIn()) {
+    showLoginGate(main, 'AIAPGET tests access karne ke liye login karein');
+    return;
+  }
+
+  const res = await apiGet('public/categories.php?type=aiapget&include_children=1');
+
+  if (!res.success || !res.data.length) {
+    main.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><h3>Tests coming soon</h3></div>';
+    return;
+  }
+
+  const parent = res.data[0];
+  const children = parent.children || [];
+
+  // Separate PYQ and Mock tests
+  const pyqs  = children.filter(c => c.name.toLowerCase().includes('pyq') || c.name.toLowerCase().includes('previous'));
+  const mocks = children.filter(c => c.name.toLowerCase().includes('mock'));
+  const others= children.filter(c => !pyqs.includes(c) && !mocks.includes(c));
+
+  main.innerHTML = `
+    ${pyqs.length ? `
+    <div class="section-header"><div class="section-title">📄 Previous Year Questions</div></div>
+    <div class="quiz-list mb-3">
+      ${pyqs.map(c => `
+        <div class="quiz-list-item">
+          <div class="info"><h4>${c.name}</h4><p>${c.question_count || 0} Questions</p></div>
+          <div class="meta">
+            <span class="badge red">PYQ</span>
+            <a href="/pages/quiz.html?type=previous_year&category=${c.id}" class="btn btn-primary btn-sm">Start →</a>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}
+
+    ${mocks.length ? `
+    <div class="section-header"><div class="section-title">🎯 Mock Tests</div></div>
+    <div class="quiz-list mb-3">
+      ${mocks.map(c => `
+        <div class="quiz-list-item">
+          <div class="info"><h4>${c.name}</h4><p>${c.question_count || 0} Questions</p></div>
+          <div class="meta">
+            <span class="badge blue">Mock</span>
+            <a href="/pages/quiz.html?type=mock&category=${c.id}" class="btn btn-primary btn-sm">Start →</a>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}
+
+    ${others.length ? `
+    <div class="section-header"><div class="section-title">📚 Practice Sets</div></div>
+    <div class="quiz-list">
+      ${others.map(c => `
+        <div class="quiz-list-item">
+          <div class="info"><h4>${c.name}</h4><p>${c.question_count || 0} Questions</p></div>
+          <div class="meta">
+            <a href="/pages/quiz.html?type=practice&category=${c.id}" class="btn btn-primary btn-sm">Start →</a>
+          </div>
+        </div>`).join('')}
+    </div>` : ''}`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/quiz.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body class="quiz-page">
+
+<!-- Quiz Header (sticky) -->
+<div class="quiz-header">
+  <div class="container quiz-header-inner">
+    <div>
+      <div class="title" id="quiz-title">Ayurveda Quiz</div>
+      <div class="sub" id="quiz-subtitle">Loading...</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="quiz-timer hidden" id="quiz-timer">
+        ⏱ <span id="quiz-timer-val">--:--</span>
+      </div>
+      <span class="text-small text-muted" id="header-q-info"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Main quiz content (injected by quiz-player.js) -->
+<div class="container" style="padding-top:8px;padding-bottom:40px">
+  <div id="quiz-main">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<script src="/assets/js/app.js"></script>
+<script>
+  // Set quiz title from URL params
+  document.addEventListener('DOMContentLoaded', () => {
+    const p = Params.all();
+    const titles = { daily:'Daily Quiz', random:'Random Quiz', weekly:'Weekly Quiz', monthly:'Monthly Quiz', previous_year:'Previous Year Questions', mock:'Mock Test', practice:'Practice Test' };
+    const subs = { daily:'Aaj ke 10 Questions', random:'10 Random MCQs', weekly:'20 Questions', monthly:'100 Questions', previous_year:'PYQ', mock:'Full Mock Test' };
+    document.getElementById('quiz-title').textContent = titles[p.type] || 'Quiz';
+    document.getElementById('quiz-subtitle').textContent = subs[p.type] || '';
+  });
+</script>
+<script src="/assets/js/quiz-player.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Govt Exams | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
+    <div class="navbar-menu" id="nav-menu">
+      <a href="/">Home</a><a href="/pages/bams.html?year=1">BAMS</a>
+      <a href="/pages/aiapget.html">AIAPGET</a>
+      <a href="/pages/samhita.html">Samhita</a>
+      <a href="/pages/govt-exam.html" class="active">Govt Exams</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
+        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+      </div>
+    </div>
+    <button class="navbar-hamburger" id="nav-burger">☰</button>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(135deg,#16A085,#0E7063)">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Govt Exams</span></div>
+    <h1>🏛 Government Exams</h1>
+    <p>State PSC, UPSC Ayurveda, Health Officer aur anya government exams</p>
+  </div>
+</div>
+
+<div class="container section">
+  <div id="govt-categories">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- Exam detail view -->
+<div id="exam-detail" class="hidden">
+  <div class="container section">
+    <button onclick="closeExam()" class="btn btn-outline btn-sm mb-3">← Back to Exams</button>
+    <h2 id="exam-name" style="margin-bottom:16px;color:var(--teal)"></h2>
+    <div id="exam-quiz-list"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', loadGovtCategories);
+
+async function loadGovtCategories() {
+  const container = document.getElementById('govt-categories');
+  const res = await apiGet('public/categories.php?type=govt_exam&include_children=1');
+
+  if (!res.success) { container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error</p></div>'; return; }
+
+  const parent   = res.data[0];
+  const children = parent?.children || [];
+
+  if (!children.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🏛</div>
+        <h3>Exam categories jald aayenge</h3>
+        <p>Admin dwara categories add ki jayengi</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="categories-grid">${
+    children.map(c => `
+      <div class="category-card" onclick="openExam(${c.id},'${c.name.replace(/'/g,"\\'")}')">
+        <span class="icon">${c.icon || '🏛'}</span>
+        <div class="name">${c.name}</div>
+        <div class="count">${c.question_count || 0} Questions</div>
+        <div class="color-bar" style="background:${c.color||'var(--teal)'}"></div>
+      </div>`).join('')
+  }</div>`;
+}
+
+function openExam(id, name) {
+  if (!Auth.isLoggedIn()) {
+    sessionStorage.setItem('aq_redirect', window.location.href);
+    window.location.href = '/pages/login.html';
+    return;
+  }
+
+  document.getElementById('govt-categories').closest('.section').classList.add('hidden');
+  document.getElementById('exam-detail').classList.remove('hidden');
+  document.getElementById('exam-name').textContent = name;
+
+  const list = document.getElementById('exam-quiz-list');
+  list.innerHTML = `
+    <div class="quiz-list">
+      <div class="quiz-list-item">
+        <div class="info"><h4>📝 Practice Test</h4><p>Random 10 Questions from ${name}</p></div>
+        <div class="meta"><span class="badge">10 Q</span>
+        <a href="/pages/quiz.html?type=practice&category=${id}" class="btn btn-primary btn-sm">Start →</a></div>
+      </div>
+      <div class="quiz-list-item">
+        <div class="info"><h4>📆 Weekly Quiz</h4><p>20 Questions</p></div>
+        <div class="meta"><span class="badge blue">20 Q</span>
+        <a href="/pages/quiz.html?type=weekly&category=${id}" class="btn btn-primary btn-sm">Start →</a></div>
+      </div>
+      <div class="quiz-list-item">
+        <div class="info"><h4>🗓️ Monthly Quiz</h4><p>100 Questions — Full preparation</p></div>
+        <div class="meta"><span class="badge" style="background:var(--purple)">100 Q</span>
+        <a href="/pages/quiz.html?type=monthly&category=${id}" class="btn btn-primary btn-sm">Start →</a></div>
+      </div>
+    </div>`;
+}
+
+function closeExam() {
+  document.getElementById('govt-categories').closest('.section').classList.remove('hidden');
+  document.getElementById('exam-detail').classList.add('hidden');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Quiz | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
+    <div class="navbar-menu" id="nav-menu">
+      <a href="/">Home</a><a href="/pages/bams.html?year=1">BAMS</a>
+      <a href="/pages/daily-quiz.html" class="active">Daily Quiz</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
+        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+      </div>
+    </div>
+    <button class="navbar-hamburger" id="nav-burger">☰</button>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark))">
+  <div class="container">
+    <h1>📅 Daily Quiz</h1>
+    <p>Har roz 10 MCQ — consistency hi success hai!</p>
+  </div>
+</div>
+
+<div class="container section">
+  <div id="daily-main">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', loadDailyPage);
+
+async function loadDailyPage() {
+  const main = document.getElementById('daily-main');
+  const today = todayStr();
+
+  const res = await apiGet(`public/daily-quiz.php?date=${today}`);
+
+  if (!res.success || !res.data) {
+    main.innerHTML = `
+      <div class="card text-center" style="padding:40px">
+        <div style="font-size:3rem;margin-bottom:12px">📅</div>
+        <h3>Aaj ka quiz aaya nahi hai</h3>
+        <p class="text-muted mt-1">Kal wapas aayein!</p>
+        <a href="/" class="btn btn-primary mt-3">Home par jaao</a>
+      </div>`;
+    return;
+  }
+
+  const quiz = res.data;
+  const done = quiz.attempted;
+
+  if (!Auth.isLoggedIn()) {
+    main.innerHTML = `
+      <div class="daily-quiz-box mb-3">
+        <div class="info">
+          <h3>📅 Aaj ka Daily Quiz</h3>
+          <p>${formatDate(today)} — ${quiz.title || '10 Important MCQs'}</p>
+          <div class="meta"><span>10 Questions</span><span>~10 Min</span></div>
+        </div>
+      </div>
+      <div class="login-gate">
+        <div class="icon">🔐</div>
+        <h3>Login Required</h3>
+        <p>Daily quiz attempt karne ke liye login karein</p>
+        <a href="/pages/login.html?redirect=/pages/daily-quiz.html" class="btn btn-primary btn-lg">Login karein</a>
+      </div>`;
+    return;
+  }
+
+  if (done) {
+    const s = quiz.last_score;
+    const pct = s ? Math.round((s.score/s.total)*100) : 0;
+    main.innerHTML = `
+      <div class="daily-quiz-box daily-quiz-completed mb-3">
+        <div class="info">
+          <h3>✅ Aaj ka Quiz Complete!</h3>
+          <p>${formatDate(today)}</p>
+          <div class="meta"><span>Score: ${s?.score}/${s?.total}</span><span>${pct}%</span></div>
+        </div>
+        <div>
+          <a href="/pages/result.html?attempt=${s?.attempt_id}" class="btn btn-white">Result Dekhein →</a>
+        </div>
+      </div>
+      <div class="card text-center" style="padding:32px">
+        <h3>🔥 Shabash! Aaj ka target complete!</h3>
+        <p class="text-muted mt-1">Kal ke quiz ka wait karein ya doosre subjects practice karein</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+          <a href="/pages/quiz.html?type=random" class="btn btn-primary">🎲 Random Quiz</a>
+          <a href="/" class="btn btn-outline">📚 Categories Dekhein</a>
+        </div>
+      </div>`;
+  } else {
+    main.innerHTML = `
+      <div class="daily-quiz-box mb-3">
+        <div class="info">
+          <h3>📅 ${quiz.title || 'Daily Quiz — ' + formatDate(today)}</h3>
+          <p>Aaj ke 10 important MCQ — puri concentration se solve karein</p>
+          <div class="meta"><span>10 Questions</span><span>~10 Minutes</span><span>No Negative Marking</span></div>
+        </div>
+      </div>
+      <div class="card text-center" style="padding:32px">
+        <div style="font-size:2.5rem;margin-bottom:12px">🌿</div>
+        <h2 style="margin-bottom:8px">Ready hain?</h2>
+        <p class="text-muted" style="margin-bottom:20px">Quiz shuru hone ke baad submit karna zaruri hai</p>
+        <a href="/pages/quiz.html?type=daily&date=${today}" class="btn btn-primary btn-lg">
+          📝 Quiz Shuru Karein →
+        </a>
+      </div>`;
+  }
+}
+</script>
+</body>
+</html>

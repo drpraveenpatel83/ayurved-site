@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subject | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
+    <div class="navbar-menu" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/pages/bams.html?year=1">BAMS</a>
+      <a href="/pages/aiapget.html">AIAPGET</a>
+      <a href="/pages/samhita.html">Samhita</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
+        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+      </div>
+    </div>
+    <button class="navbar-hamburger" id="nav-burger">☰</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb" id="breadcrumb">
+      <a href="/">Home</a><span>›</span><span>Subject</span>
+    </div>
+    <h1 id="subject-name">Loading...</h1>
+    <p id="subject-meta" class="text-small" style="opacity:0.85"></p>
+  </div>
+</div>
+
+<div class="container section">
+  <!-- Dynamic Tabs: Quiz always shown. Syllabus/Notes only if content exists -->
+  <div class="tabs" id="subject-tabs">
+    <button class="tab-btn active" id="tab-quiz" onclick="showTab('quiz')">📝 Quiz</button>
+    <button class="tab-btn hidden" id="tab-syllabus" onclick="showTab('syllabus')">📋 Syllabus</button>
+    <button class="tab-btn hidden" id="tab-notes" onclick="showTab('notes')">📖 Short Notes</button>
+  </div>
+
+  <!-- Quiz Tab -->
+  <div class="tab-panel active" id="panel-quiz">
+    <div id="quiz-list">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- Syllabus Tab -->
+  <div class="tab-panel" id="panel-syllabus">
+    <div class="card">
+      <div class="notes-content" id="syllabus-content">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes Tab -->
+  <div class="tab-panel" id="panel-notes">
+    <div id="notes-list">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script>
+const catId = parseInt(Params.get('id'));
+let subjectData = null;
+let notesLoaded = false, syllabusLoaded = false;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!catId) { window.location.href = '/'; return; }
+  await loadSubjectInfo();
+  loadQuizzes();
+});
+
+async function loadSubjectInfo() {
+  const res = await apiGet(`public/categories.php?id=${catId}`);
+  if (!res.success) return;
+  subjectData = res.data;
+
+  document.getElementById('subject-name').textContent = subjectData.name;
+  document.title = `${subjectData.name} | Ayurveda Quiz`;
+
+  // Update breadcrumb
+  const bc = document.getElementById('breadcrumb');
+  if (subjectData.parent) {
+    bc.innerHTML = `<a href="/">Home</a><span>›</span>
+      <a href="/pages/bams.html?year=${subjectData.parent.bams_year || ''}&id=${subjectData.parent.id}">${subjectData.parent.name}</a>
+      <span>›</span><span>${subjectData.name}</span>`;
+  }
+
+  // Check which tabs to show (only if notes exist)
+  const tabRes = await apiGet(`public/notes.php?category_id=${catId}&check_only=1`);
+  if (tabRes.success) {
+    if (tabRes.data.has_syllabus) {
+      document.getElementById('tab-syllabus').classList.remove('hidden');
+    }
+    if (tabRes.data.has_notes) {
+      document.getElementById('tab-notes').classList.remove('hidden');
+    }
+  }
+}
+
+async function loadQuizzes() {
+  const list = document.getElementById('quiz-list');
+
+  // Login check
+  if (!Auth.isLoggedIn()) {
+    showLoginGate(list);
+    return;
+  }
+
+  const res = await apiGet(`public/quiz-list.php?category_id=${catId}`);
+
+  if (!res.success || !res.data.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📝</div><h3>Quizzes coming soon</h3><p>Is subject ke liye quiz jald available honge</p></div>';
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="quiz-list">
+      <!-- Practice / Random -->
+      <div class="quiz-list-item">
+        <div class="info">
+          <h4>🎲 Practice Test</h4>
+          <p>Random 10 Questions from ${subjectData?.name || 'this subject'}</p>
+        </div>
+        <div class="meta">
+          <span class="badge">10 Q</span>
+          <a href="/pages/quiz.html?type=practice&category=${catId}" class="btn btn-primary btn-sm">Start →</a>
+        </div>
+      </div>
+      ${res.data.map(q => `
+        <div class="quiz-list-item">
+          <div class="info">
+            <h4>${q.title}</h4>
+            <p>${q.question_count} Questions${q.duration_mins ? ` · ${q.duration_mins} min` : ''}</p>
+          </div>
+          <div class="meta">
+            <span class="badge ${q.type === 'previous_year' ? 'red' : q.type === 'mock' ? 'blue' : ''}">${q.question_count} Q</span>
+            <a href="/pages/quiz.html?type=${q.type}&quiz_id=${q.id}&category=${catId}" class="btn btn-primary btn-sm">Start →</a>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+async function loadSyllabus() {
+  if (syllabusLoaded) return;
+  syllabusLoaded = true;
+
+  if (!Auth.isLoggedIn()) {
+    showLoginGate(document.getElementById('panel-syllabus'));
+    return;
+  }
+
+  const res = await apiGet(`public/notes.php?category_id=${catId}&type=syllabus`);
+  const el  = document.getElementById('syllabus-content');
+
+  if (!res.success || !res.data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><h3>Syllabus coming soon</h3></div>';
+    return;
+  }
+
+  el.innerHTML = res.data.map(n => `
+    <h2>${n.title}</h2>
+    <div>${n.content || '<p>Content loading...</p>'}</div>
+    ${n.file_url ? `<div class="mt-2"><a href="${n.file_url}" target="_blank" class="btn btn-outline btn-sm">📥 PDF Download</a></div>` : ''}`
+  ).join('<hr style="margin:20px 0;border-color:var(--border)">');
+}
+
+async function loadNotes() {
+  if (notesLoaded) return;
+  notesLoaded = true;
+
+  if (!Auth.isLoggedIn()) {
+    showLoginGate(document.getElementById('panel-notes'));
+    return;
+  }
+
+  const res = await apiGet(`public/notes.php?category_id=${catId}&type=short_notes`);
+  const container = document.getElementById('notes-list');
+
+  if (!res.success || !res.data.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📖</div><h3>Notes coming soon</h3></div>';
+    return;
+  }
+
+  container.innerHTML = res.data.map(n => `
+    <div class="card mb-3">
+      <h3 style="color:var(--primary);margin-bottom:12px">${n.title}</h3>
+      <div class="notes-content">${n.content || ''}</div>
+      ${n.file_url ? `<div class="mt-2"><a href="${n.file_url}" target="_blank" class="btn btn-outline btn-sm">📥 PDF</a></div>` : ''}
+    </div>`).join('');
+}
+
+function showTab(name) {
+  ['quiz','syllabus','notes'].forEach(t => {
+    document.getElementById(`tab-${t}`)?.classList.toggle('active', t === name);
+    document.getElementById(`panel-${t}`)?.classList.toggle('active', t === name);
+  });
+  if (name === 'syllabus') loadSyllabus();
+  if (name === 'notes')    loadNotes();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
+    <div class="navbar-menu" id="nav-menu">
+      <a href="/">Home</a><a href="/pages/bams.html?year=1">BAMS</a>
+    </div>
+    <div class="navbar-actions">
+      <div id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
+        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+      </div>
+    </div>
+    <button class="navbar-hamburger" id="nav-burger">☰</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <h1>👤 My Profile</h1>
+    <p id="profile-subtitle">Loading...</p>
+  </div>
+</div>
+
+<div class="container section">
+  <div id="profile-main">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!Auth.isLoggedIn()) { window.location.href = '/pages/login.html'; return; }
+
+  const user = Auth.getUser();
+  document.getElementById('profile-subtitle').textContent = user.email;
+
+  const main = document.getElementById('profile-main');
+
+  // Load attempt history
+  const res = await apiGet('public/user-attempts.php?limit=20');
+
+  main.innerHTML = `
+    <!-- User Info Card -->
+    <div class="card mb-3" style="display:flex;align-items:center;gap:16px">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:white;flex-shrink:0">
+        ${user.name?.charAt(0)?.toUpperCase()}
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:1.1rem">${escHtml(user.name)}</div>
+        <div class="text-muted text-small">${escHtml(user.email)}</div>
+        <div class="mt-1"><span class="badge ${user.membership_type !== 'free' ? 'green' : ''}">${user.membership_type === 'free' ? 'Free Member' : user.membership_type + ' Member'}</span></div>
+      </div>
+      <div style="margin-left:auto">
+        <button class="btn btn-outline btn-sm" onclick="Auth.logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Attempt History -->
+    <div class="section-title mb-2">📊 Quiz History</div>
+    ${res.success && res.data.length ? `
+    <div class="quiz-list">
+      ${res.data.map(a => `
+        <div class="quiz-list-item">
+          <div class="info">
+            <h4>${a.quiz_type.replace('_',' ').toUpperCase()} ${a.category_name ? '— ' + a.category_name : ''}</h4>
+            <p>${formatDate(a.completed_at)} · ${a.time_taken_secs ? Math.round(a.time_taken_secs/60) + ' min' : ''}</p>
+          </div>
+          <div class="meta">
+            <span class="badge ${a.score/a.total_questions >= 0.7 ? 'green' : a.score/a.total_questions >= 0.4 ? '' : 'red'}">
+              ${a.score}/${a.total_questions}
+            </span>
+            <a href="/pages/result.html?attempt=${a.id}" class="btn btn-outline btn-sm">View →</a>
+          </div>
+        </div>`).join('')}
+    </div>` : '<div class="empty-state"><div class="icon">📝</div><h3>Abhi tak koi quiz attempt nahi kiya</h3><a href="/" class="btn btn-primary mt-2">Quiz Start Karein</a></div>'}`;
+});
+
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

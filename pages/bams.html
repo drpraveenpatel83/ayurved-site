@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAMS | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
+    <div class="navbar-menu" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/pages/bams.html?year=1" class="active">BAMS</a>
+      <a href="/pages/aiapget.html">AIAPGET</a>
+      <a href="/pages/samhita.html">Samhita</a>
+      <a href="/pages/govt-exam.html">Govt Exams</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
+        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+      </div>
+    </div>
+    <button class="navbar-hamburger" id="nav-burger">☰</button>
+  </div>
+</nav>
+
+<!-- Year Tabs -->
+<div style="background:white;border-bottom:2px solid var(--border);padding:0">
+  <div class="container">
+    <div class="tabs" style="border-bottom:none;padding-top:4px">
+      <button class="tab-btn" id="yr-tab-1" onclick="setYear(1)">📚 1st Year</button>
+      <button class="tab-btn" id="yr-tab-2" onclick="setYear(2)">📗 2nd Year</button>
+      <button class="tab-btn" id="yr-tab-3" onclick="yr-tab-3">📘 3rd Year</button>
+    </div>
+  </div>
+</div>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">Home</a><span>›</span><span>BAMS</span>
+    </div>
+    <h1 id="year-title">BAMS 1st Year</h1>
+    <p id="year-subtitle">Select a subject to start practice</p>
+  </div>
+</div>
+
+<!-- Subjects Grid -->
+<div class="container section">
+  <div class="section-header">
+    <div class="section-title">Subjects</div>
+  </div>
+  <div id="subjects-grid">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div>
+  </div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script>
+let activeYear = 1;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const yr = parseInt(Params.get('year')) || 1;
+  setYear(yr);
+});
+
+async function setYear(yr) {
+  activeYear = yr;
+  // Update URL without reload
+  history.replaceState({}, '', `/pages/bams.html?year=${yr}`);
+
+  // Update tabs
+  [1,2,3].forEach(y => {
+    const t = document.getElementById(`yr-tab-${y}`);
+    if (t) t.classList.toggle('active', y === yr);
+  });
+
+  const names = {1:'BAMS 1st Year', 2:'BAMS 2nd Year', 3:'BAMS 3rd Year'};
+  document.getElementById('year-title').textContent = names[yr];
+  document.title = `${names[yr]} | Ayurveda Quiz`;
+
+  await loadSubjects(yr);
+}
+
+async function loadSubjects(yr) {
+  const grid = document.getElementById('subjects-grid');
+  showSpinner(grid);
+
+  const res = await apiGet(`public/categories.php?type=bams_year&year=${yr}`);
+
+  if (!res.success || !res.data.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">📚</div><h3>Subjects coming soon</h3></div>';
+    return;
+  }
+
+  // Find the BAMS year parent category then get its subjects
+  const yearCat = res.data[0];
+  const subjRes = await apiGet(`public/categories.php?parent_id=${yearCat.id}`);
+
+  if (!subjRes.success || !subjRes.data.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">📚</div><h3>Subjects add nahi hue hain</h3></div>';
+    return;
+  }
+
+  grid.innerHTML = `<div class="subjects-grid">${
+    subjRes.data.map(s => `
+      <a href="/pages/subject.html?id=${s.id}" class="subject-card">
+        <span class="icon">${s.icon || '📖'}</span>
+        <div class="info">
+          <h4>${s.name}</h4>
+          <p>${s.question_count || 0} Questions available</p>
+        </div>
+        <span class="arrow">›</span>
+      </a>`).join('')
+  }</div>`;
+}
+
+// Fix year 3 tab onclick
+document.getElementById('yr-tab-3').onclick = () => setYear(3);
+</script>
+</body>
+</html>

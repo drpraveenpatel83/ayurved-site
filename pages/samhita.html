@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Samhita | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
+    <div class="navbar-menu" id="nav-menu">
+      <a href="/">Home</a><a href="/pages/bams.html?year=1">BAMS</a>
+      <a href="/pages/aiapget.html">AIAPGET</a>
+      <a href="/pages/samhita.html" class="active">Samhita</a>
+      <a href="/pages/govt-exam.html">Govt Exams</a>
+    </div>
+    <div class="navbar-actions">
+      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
+        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+      </div>
+    </div>
+    <button class="navbar-hamburger" id="nav-burger">☰</button>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(135deg,#8E44AD,#6C3483)">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Samhita</span></div>
+    <h1>📜 Samhita</h1>
+    <p>Classical Ayurveda texts — Quiz aur Notes</p>
+  </div>
+</div>
+
+<div class="container section">
+  <div id="samhita-list">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- Selected Samhita detail (tabs: Quiz + Notes) -->
+<div id="samhita-detail" class="hidden">
+  <div class="container">
+    <button onclick="closeSamhita()" class="btn btn-outline btn-sm mb-3">← Wapas</button>
+    <h2 id="samhita-detail-name" style="margin-bottom:16px"></h2>
+    <div class="tabs" id="samhita-tabs">
+      <button class="tab-btn active" id="stab-quiz" onclick="showSTab('quiz')">📝 Quiz</button>
+      <button class="tab-btn hidden" id="stab-notes" onclick="showSTab('notes')">📖 Notes</button>
+    </div>
+    <div class="tab-panel active" id="spanel-quiz">
+      <div id="samhita-quiz-list"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+    <div class="tab-panel" id="spanel-notes">
+      <div id="samhita-notes-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script>
+let currentSamhita = null;
+
+document.addEventListener('DOMContentLoaded', loadSamhitaList);
+
+async function loadSamhitaList() {
+  const list = document.getElementById('samhita-list');
+  const res  = await apiGet('public/categories.php?type=samhita&include_children=1');
+
+  if (!res.success) { list.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error loading</p></div>'; return; }
+
+  const parent   = res.data[0];
+  const children = parent?.children || [];
+
+  if (!children.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📜</div><h3>Samhita coming soon</h3></div>';
+    return;
+  }
+
+  list.innerHTML = `<div class="subjects-grid">${
+    children.map(s => `
+      <div class="subject-card" onclick="openSamhita(${s.id}, '${s.name.replace(/'/g,"\\'")}', ${s.has_notes||0})" style="cursor:pointer">
+        <span class="icon">📜</span>
+        <div class="info">
+          <h4>${s.name}</h4>
+          <p>${s.question_count || 0} Questions${s.has_notes ? ' · Notes' : ''}</p>
+        </div>
+        <span class="arrow">›</span>
+      </div>`).join('')
+  }</div>`;
+}
+
+function openSamhita(id, name, hasNotes) {
+  if (!Auth.isLoggedIn()) {
+    sessionStorage.setItem('aq_redirect', window.location.href);
+    window.location.href = '/pages/login.html';
+    return;
+  }
+
+  currentSamhita = { id, name };
+  document.getElementById('samhita-list').closest('.section').classList.add('hidden');
+  document.getElementById('samhita-detail').classList.remove('hidden');
+  document.getElementById('samhita-detail-name').textContent = name;
+
+  // Show/hide notes tab
+  const notesTab = document.getElementById('stab-notes');
+  if (hasNotes) notesTab.classList.remove('hidden');
+  else notesTab.classList.add('hidden');
+
+  loadSamhitaQuiz(id);
+}
+
+function closeSamhita() {
+  document.getElementById('samhita-list').closest('.section').classList.remove('hidden');
+  document.getElementById('samhita-detail').classList.add('hidden');
+  currentSamhita = null;
+  // Reset tabs
+  showSTab('quiz');
+}
+
+async function loadSamhitaQuiz(catId) {
+  const list = document.getElementById('samhita-quiz-list');
+  list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  list.innerHTML = `
+    <div class="quiz-list">
+      <div class="quiz-list-item">
+        <div class="info"><h4>🎲 Practice Test</h4><p>Random 10 Questions</p></div>
+        <div class="meta"><span class="badge">10 Q</span>
+        <a href="/pages/quiz.html?type=practice&category=${catId}" class="btn btn-primary btn-sm">Start →</a></div>
+      </div>
+      <div class="quiz-list-item">
+        <div class="info"><h4>📆 Weekly Quiz</h4><p>20 Questions · Mixed topics</p></div>
+        <div class="meta"><span class="badge blue">20 Q</span>
+        <a href="/pages/quiz.html?type=weekly&category=${catId}" class="btn btn-primary btn-sm">Start →</a></div>
+      </div>
+    </div>`;
+}
+
+async function loadSamhitaNotes(catId) {
+  const container = document.getElementById('samhita-notes-content');
+  if (container.dataset.loaded) return;
+  container.dataset.loaded = '1';
+
+  const res = await apiGet(`public/notes.php?category_id=${catId}&type=short_notes`);
+  if (!res.success || !res.data.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📖</div><h3>Notes coming soon</h3></div>';
+    return;
+  }
+  container.innerHTML = res.data.map(n => `
+    <div class="card mb-3">
+      <h3 style="color:var(--purple);margin-bottom:12px">${n.title}</h3>
+      <div class="notes-content">${n.content || ''}</div>
+    </div>`).join('');
+}
+
+function showSTab(name) {
+  ['quiz','notes'].forEach(t => {
+    document.getElementById(`stab-${t}`)?.classList.toggle('active', t === name);
+    document.getElementById(`spanel-${t}`)?.classList.toggle('active', t === name);
+  });
+  if (name === 'notes' && currentSamhita) loadSamhitaNotes(currentSamhita.id);
+}
+</script>
+</body>
+</html>

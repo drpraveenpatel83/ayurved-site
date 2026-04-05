@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | Ayurveda Quiz</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/admin.css">
+  <!-- Quill rich text editor (CDN - no npm needed) -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+</head>
+<body class="admin-body">
+
+<!-- Login Screen (shown if not authenticated) -->
+<div id="admin-login-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#F4F6F9">
+  <div style="background:white;padding:36px 32px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1);width:100%;max-width:380px">
+    <h2 style="color:#E67E22;margin-bottom:20px;text-align:center">🌿 Admin Login</h2>
+    <form id="admin-login-form" onsubmit="adminLogin(event)">
+      <div class="form-field" style="margin-bottom:14px">
+        <label>Email</label>
+        <input type="email" id="al-email" required placeholder="admin@email.com">
+      </div>
+      <div class="form-field" style="margin-bottom:20px">
+        <label>Password</label>
+        <input type="password" id="al-pass" required placeholder="Password">
+      </div>
+      <button type="submit" class="btn-admin btn-admin-primary" style="width:100%;justify-content:center;padding:12px" id="al-btn">Login</button>
+      <div id="al-error" style="color:#E74C3C;font-size:0.82rem;margin-top:10px;text-align:center"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Layout (hidden until logged in) -->
+<div class="admin-layout hidden" id="admin-app">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-logo">
+      <h2>🌿 Ayurveda Quiz</h2>
+      <p>Admin Panel</p>
+    </div>
+    <nav class="admin-nav">
+      <div class="admin-nav-section">Overview</div>
+      <a class="active" data-panel="dashboard" onclick="showPanel('dashboard')"><span class="nav-icon">📊</span> Dashboard</a>
+      <div class="admin-nav-section">Content</div>
+      <a data-panel="questions" onclick="showPanel('questions')"><span class="nav-icon">❓</span> Questions</a>
+      <a data-panel="daily-quiz" onclick="showPanel('daily-quiz')"><span class="nav-icon">📅</span> Daily Quiz</a>
+      <a data-panel="notes" onclick="showPanel('notes')"><span class="nav-icon">📖</span> Notes & Syllabus</a>
+      <div class="admin-nav-section">Setup</div>
+      <a data-panel="categories" onclick="showPanel('categories')"><span class="nav-icon">📚</span> Categories</a>
+      <a data-panel="banners" onclick="showPanel('banners')"><span class="nav-icon">🖼</span> Banners</a>
+      <div class="admin-nav-section">Actions</div>
+      <a href="/" target="_blank"><span class="nav-icon">🌐</span> View Site</a>
+      <a onclick="adminLogout()"><span class="nav-icon">🚪</span> Logout</a>
+    </nav>
+    <div class="admin-user-info">Logged in as <strong id="admin-name-display">Admin</strong></div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button onclick="toggleSidebar()" style="display:none;background:none;border:none;font-size:1.3rem;cursor:pointer" id="mob-menu-btn">☰</button>
+        <div class="topbar-title" id="panel-title">Dashboard</div>
+      </div>
+      <div class="topbar-actions">
+        <a href="/" target="_blank" class="btn-admin btn-admin-outline topbar-site-btn">🌐 View Site</a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- ── DASHBOARD ─────────────────────────────────────── -->
+      <div class="admin-panel active" id="panel-dashboard">
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card"><div class="label">Total Questions</div><div class="value" id="s-questions">-</div></div>
+          <div class="stat-card" style="border-color:#27AE60"><div class="label">Users</div><div class="value" id="s-users">-</div></div>
+          <div class="stat-card" style="border-color:#2980B9"><div class="label">Quiz Attempts</div><div class="value" id="s-attempts">-</div></div>
+          <div class="stat-card" style="border-color:#8E44AD"><div class="label">Today Attempts</div><div class="value" id="s-today">-</div></div>
+          <div class="stat-card" style="border-color:#16A085"><div class="label">Daily Quizzes</div><div class="value" id="s-daily">-</div></div>
+          <div class="stat-card" style="border-color:#E91E63"><div class="label">Notes Published</div><div class="value" id="s-notes">-</div></div>
+        </div>
+        <div class="card" style="background:white;border-radius:10px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.06)">
+          <h3 style="margin-bottom:12px;font-size:0.95rem">Quick Actions</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn-admin btn-admin-primary" onclick="showPanel('questions')">➕ Add Question</button>
+            <button class="btn-admin btn-admin-green" onclick="showPanel('daily-quiz')">📅 Upload Daily Quiz</button>
+            <button class="btn-admin btn-admin-outline" onclick="showPanel('notes')">📖 Add Notes</button>
+            <button class="btn-admin btn-admin-outline" onclick="showPanel('categories')">📚 Add Category</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── QUESTIONS ──────────────────────────────────────── -->
+      <div class="admin-panel" id="panel-questions">
+        <div class="panel-header">
+          <div class="panel-title">Questions Management</div>
+          <button class="btn-admin btn-admin-primary" onclick="openQModal()">➕ Add Question</button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <select id="q-filter-cat" onchange="loadQuestions(1)"><option value="">All Categories</option></select>
+          <input type="text" id="q-search" placeholder="Search questions..." oninput="debounce(loadQuestions, 400)(1)" style="flex:1;min-width:200px">
+          <button class="btn-admin btn-admin-outline" onclick="openBulkImport()">📥 Bulk Import CSV</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr>
+              <th>#</th><th style="min-width:300px">Question</th><th>Category</th>
+              <th>Correct</th><th>Difficulty</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="q-tbody"><tr><td colspan="7" style="text-align:center;padding:20px">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="q-pagination"></div>
+
+        <!-- Bulk Import panel -->
+        <div id="bulk-import-panel" class="admin-form hidden" style="margin-top:16px">
+          <h3 style="margin-bottom:16px">📥 Bulk Import Questions (CSV)</h3>
+          <div class="card" style="background:#FEF9F0;border:1px solid var(--border);padding:14px;margin-bottom:14px;border-radius:8px;font-size:0.85rem">
+            <strong>CSV Format (columns in order):</strong><br>
+            category_slug, question_text, option_a, option_b, option_c, option_d, correct_option (a/b/c/d), explanation, difficulty (easy/medium/hard), source, year
+            <br><br>
+            <a href="#" onclick="downloadSampleCsv()" style="color:var(--primary)">📥 Sample CSV Download</a>
+          </div>
+          <div class="upload-area" id="csv-drop-area" onclick="document.getElementById('csv-file-input').click()">
+            <div class="icon">📄</div>
+            <p>CSV file yahan drag karein ya click karein</p>
+            <input type="file" id="csv-file-input" accept=".csv" onchange="uploadCsv(this.files[0])">
+          </div>
+          <div id="import-result" class="hidden" style="margin-top:12px"></div>
+        </div>
+      </div>
+
+      <!-- ── DAILY QUIZ ─────────────────────────────────────── -->
+      <div class="admin-panel" id="panel-daily-quiz">
+        <div class="panel-header">
+          <div class="panel-title">Daily Quiz Management</div>
+        </div>
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" onclick="showDQTab('calendar')">📅 Calendar</button>
+          <button class="admin-tab-btn" onclick="showDQTab('upload')">📥 Bulk Upload</button>
+        </div>
+
+        <!-- Calendar view -->
+        <div id="dq-tab-calendar">
+          <div id="dq-calendar-list"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+        </div>
+
+        <!-- Upload -->
+        <div id="dq-tab-upload" class="hidden">
+          <div class="admin-form">
+            <h3 style="margin-bottom:16px">📥 Monthly Quiz Sheet Upload</h3>
+            <div class="card" style="background:#E8F8F0;border:1px solid #A9DFBF;padding:14px;margin-bottom:16px;border-radius:8px;font-size:0.85rem">
+              <strong>CSV Format — Ek row = ek din, 10 questions inline:</strong><br>
+              <code style="font-size:0.8rem">date, category_slug, q1_text, q1_a, q1_b, q1_c, q1_d, q1_correct, q1_explanation, q2_text, q2_a, ... q10_explanation</code>
+              <br><br>
+              <strong>Ya Question IDs use karein:</strong><br>
+              <code style="font-size:0.8rem">date, q1_id, q2_id, q3_id, ... q10_id</code>
+              <br><br>
+              <a href="#" onclick="downloadDailySample()" style="color:var(--green)">📥 Sample CSV Download</a>
+            </div>
+            <div class="upload-area" onclick="document.getElementById('dq-file-input').click()">
+              <div class="icon">📅</div>
+              <p>Monthly quiz CSV file yahan drop karein</p>
+              <input type="file" id="dq-file-input" accept=".csv" onchange="uploadDailyQuiz(this.files[0])">
+            </div>
+            <div id="dq-import-result" class="hidden" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NOTES & SYLLABUS ────────────────────────────────── -->
+      <div class="admin-panel" id="panel-notes">
+        <div class="panel-header">
+          <div class="panel-title">Notes & Syllabus</div>
+          <button class="btn-admin btn-admin-primary" onclick="openNotesModal()">➕ Add Notes</button>
+        </div>
+        <div class="filter-bar">
+          <select id="n-filter-cat" onchange="loadNotesList()"><option value="">All Categories</option></select>
+          <select id="n-filter-type" onchange="loadNotesList()">
+            <option value="">All Types</option>
+            <option value="syllabus">Syllabus</option>
+            <option value="short_notes">Short Notes</option>
+            <option value="full_notes">Full Notes</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Title</th><th>Category</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="notes-tbody"><tr><td colspan="6" style="text-align:center;padding:20px">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CATEGORIES ─────────────────────────────────────── -->
+      <div class="admin-panel" id="panel-categories">
+        <div class="panel-header">
+          <div class="panel-title">Categories & Subjects</div>
+          <button class="btn-admin btn-admin-primary" onclick="openCatModal()">➕ Add Category</button>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Name</th><th>Parent</th><th>Type</th><th>Questions</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="cat-tbody"><tr><td colspan="7" style="text-align:center;padding:20px">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── BANNERS ─────────────────────────────────────────── -->
+      <div class="admin-panel" id="panel-banners">
+        <div class="panel-header">
+          <div class="panel-title">Homepage Banners</div>
+          <button class="btn-admin btn-admin-primary" onclick="openBannerModal()">➕ Add Banner</button>
+        </div>
+        <div id="banners-list" class="admin-form">
+          <div class="spinner-wrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-main -->
+</div><!-- /admin-layout -->
+
+<!-- ── MODALS ──────────────────────────────────────────────── -->
+
+<!-- Question Modal -->
+<div id="q-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;display:none">
+  <div style="background:white;max-width:700px;margin:24px auto;border-radius:12px;padding:24px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+      <h3 id="q-modal-title">Add Question</h3>
+      <button onclick="closeModal('q-modal')" style="background:none;border:none;font-size:1.3rem;cursor:pointer">✕</button>
+    </div>
+    <form id="q-form" onsubmit="saveQuestion(event)">
+      <input type="hidden" id="qf-id">
+      <div class="form-row">
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Category *</label>
+          <select id="qf-cat" required><option value="">Select category...</option></select>
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Question Text *</label>
+          <textarea id="qf-text" rows="3" required placeholder="Question enter karein..."></textarea>
+        </div>
+        <div class="form-field"><label>Option A *</label><input type="text" id="qf-a" required></div>
+        <div class="form-field"><label>Option B *</label><input type="text" id="qf-b" required></div>
+        <div class="form-field"><label>Option C *</label><input type="text" id="qf-c" required></div>
+        <div class="form-field"><label>Option D *</label><input type="text" id="qf-d" required></div>
+        <div class="form-field">
+          <label>Correct Answer *</label>
+          <select id="qf-correct" required>
+            <option value="">Select...</option>
+            <option value="a">A</option><option value="b">B</option>
+            <option value="c">C</option><option value="d">D</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Difficulty</label>
+          <select id="qf-diff">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Source (optional)</label><input type="text" id="qf-source" placeholder="AIAPGET 2022, Charaka..."></div>
+        <div class="form-field"><label>Year (optional)</label><input type="number" id="qf-year" placeholder="2022"></div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Explanation (optional)</label>
+          <textarea id="qf-explanation" rows="3" placeholder="Answer ka explanation..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-admin btn-admin-primary" id="qf-submit-btn">Save Question</button>
+        <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('q-modal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Notes Modal -->
+<div id="notes-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;display:none">
+  <div style="background:white;max-width:900px;margin:24px auto;border-radius:12px;padding:24px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+      <h3 id="notes-modal-title">Add Notes</h3>
+      <button onclick="closeModal('notes-modal')" style="background:none;border:none;font-size:1.3rem;cursor:pointer">✕</button>
+    </div>
+    <form id="notes-form" onsubmit="saveNotes(event)">
+      <input type="hidden" id="nf-id">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Category *</label>
+          <select id="nf-cat" required><option value="">Select...</option></select>
+        </div>
+        <div class="form-field">
+          <label>Type *</label>
+          <select id="nf-type">
+            <option value="syllabus">Syllabus</option>
+            <option value="short_notes" selected>Short Notes</option>
+            <option value="full_notes">Full Notes</option>
+          </select>
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Title *</label>
+          <input type="text" id="nf-title" required placeholder="Notes title...">
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Content (HTML supported — use editor below)</label>
+          <div id="ql-editor-container">
+            <div id="notes-editor" style="min-height:300px"></div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Published</label>
+          <select id="nf-published">
+            <option value="1">Yes (Visible)</option>
+            <option value="0">No (Draft)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Display Order</label>
+          <input type="number" id="nf-order" value="0">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-admin btn-admin-primary">Save Notes</button>
+        <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('notes-modal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div id="cat-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;display:none">
+  <div style="background:white;max-width:600px;margin:24px auto;border-radius:12px;padding:24px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+      <h3 id="cat-modal-title">Add Category</h3>
+      <button onclick="closeModal('cat-modal')" style="background:none;border:none;font-size:1.3rem;cursor:pointer">✕</button>
+    </div>
+    <form id="cat-form" onsubmit="saveCategory(event)">
+      <input type="hidden" id="cf-id">
+      <div class="form-row">
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Name *</label>
+          <input type="text" id="cf-name" required placeholder="Category name...">
+        </div>
+        <div class="form-field">
+          <label>Type *</label>
+          <select id="cf-type" onchange="onCatTypeChange()">
+            <option value="subject">Subject</option>
+            <option value="bams_year">BAMS Year</option>
+            <option value="samhita">Samhita</option>
+            <option value="aiapget">AIAPGET</option>
+            <option value="govt_exam">Govt Exam</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Parent Category</label>
+          <select id="cf-parent"><option value="">None (Root)</option></select>
+        </div>
+        <div class="form-field" id="cf-year-field" class="hidden">
+          <label>BAMS Year</label>
+          <select id="cf-year"><option value="">-</option><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option></select>
+        </div>
+        <div class="form-field">
+          <label>Icon (emoji)</label>
+          <input type="text" id="cf-icon" placeholder="📚" maxlength="5">
+        </div>
+        <div class="form-field">
+          <label>Color</label>
+          <input type="color" id="cf-color" value="#E67E22">
+        </div>
+        <div class="form-field">
+          <label>Display Order</label>
+          <input type="number" id="cf-order" value="0">
+        </div>
+        <div class="form-field">
+          <label>Active</label>
+          <select id="cf-active"><option value="1">Yes</option><option value="0">No</option></select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-admin btn-admin-primary">Save Category</button>
+        <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('cat-modal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Banner Modal -->
+<div id="banner-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;display:none">
+  <div style="background:white;max-width:500px;margin:24px auto;border-radius:12px;padding:24px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+      <h3>Add Banner</h3>
+      <button onclick="closeModal('banner-modal')" style="background:none;border:none;font-size:1.3rem;cursor:pointer">✕</button>
+    </div>
+    <form id="banner-form" onsubmit="saveBanner(event)">
+      <input type="hidden" id="bf-id">
+      <div class="form-field" style="margin-bottom:14px">
+        <label>Image URL *</label>
+        <input type="text" id="bf-img" required placeholder="https://... ya /uploads/banners/img.jpg">
+      </div>
+      <div class="form-field" style="margin-bottom:14px">
+        <label>Title</label>
+        <input type="text" id="bf-title" placeholder="Banner heading">
+      </div>
+      <div class="form-field" style="margin-bottom:14px">
+        <label>Subtitle</label>
+        <input type="text" id="bf-subtitle" placeholder="Subheading text">
+      </div>
+      <div class="form-field" style="margin-bottom:14px">
+        <label>Link URL</label>
+        <input type="text" id="bf-link" placeholder="/pages/aiapget.html">
+      </div>
+      <div class="form-field" style="margin-bottom:20px">
+        <label>Background Color</label>
+        <input type="color" id="bf-color" value="#E67E22">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-admin btn-admin-primary">Save Banner</button>
+        <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('banner-modal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/admin/admin.js"></script>
+</body>
+</html>

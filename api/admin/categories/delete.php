@@ -1,0 +1,10 @@
+<?php
+require_once dirname(__DIR__, 2) . '/helpers.php';
+setCorsHeaders();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonError('POST required', 405);
+requireAdmin();
+$id = intVal('id');
+if (!$id) jsonError('id required');
+// Soft delete
+getDB()->prepare("UPDATE categories SET is_active = 0 WHERE id = ?")->execute([$id]);
+jsonSuccess([], 'Category deleted');
