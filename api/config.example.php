@@ -1,25 +1,16 @@
 <?php
-// Copy this file to config.php and fill in your Hostinger DB credentials
-// NEVER commit config.php to GitHub (it's in .gitignore)
+// Hostinger pe yeh file copy karke config.php naam do
+// File Manager → api/ → config.php banao
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'your_database_name');
-define('DB_USER', 'your_db_username');
-define('DB_PASS', 'your_db_password');
+define('DB_HOST',    'localhost');
+define('DB_NAME',    'u123456_ayurveda');   // Hostinger database name
+define('DB_USER',    'u123456_admin');       // Hostinger DB username
+define('DB_PASS',    'YourPassword');         // Hostinger DB password
 define('DB_CHARSET', 'utf8mb4');
 
-// Site URL (no trailing slash)
-define('SITE_URL', 'https://yourdomain.com');
-
-// Upload paths
+define('SITE_URL',   'https://quiz.yourdomain.com'); // Apna subdomain
 define('UPLOAD_DIR', dirname(__DIR__) . '/uploads/');
 define('UPLOAD_URL', SITE_URL . '/uploads/');
-
-// Session settings
-define('SESSION_LIFETIME', 86400 * 30); // 30 days
-
-// Admin email
+define('SESSION_LIFETIME', 86400 * 30);
 define('ADMIN_EMAIL', 'admin@yourdomain.com');
-
-// Environment: 'development' or 'production'
 define('APP_ENV', 'production');
