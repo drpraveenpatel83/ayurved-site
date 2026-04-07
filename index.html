@@ -1,149 +1,343 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ayurveda Quiz & Notes | BAMS | AIAPGET | Govt Exams</title>
-  <meta name="description" content="BAMS, AIAPGET, Samhita aur Govt Exam ke liye free Ayurveda MCQ Quiz, Daily Test, Notes. Daily 10 questions practice.">
-  <meta name="theme-color" content="#E67E22">
-  <!-- Open Graph -->
-  <meta property="og:title" content="Ayurveda Quiz & Notes">
-  <meta property="og:description" content="Daily Ayurveda MCQ Practice for BAMS, AIAPGET, Govt Exams">
+  <title>Ayurved Studies – Free BAMS Notes, AIAPGET MCQ, NCISM Updates & Daily Quiz</title>
+  <meta name="description" content="India's free Ayurveda learning platform. Curated BAMS notes, AIAPGET MCQ practice, NCISM updates, daily quiz, AYUSH job alerts and counselling news for Ayurveda students and doctors.">
+  <meta name="keywords" content="BAMS notes, AIAPGET preparation, NCISM syllabus, Ayurveda quiz, AYUSH job alerts, Charaka Samhita, Sushruta, counselling news">
+  <meta name="theme-color" content="#1a6e3c">
+  <meta property="og:title" content="Ayurved Studies – Free BAMS Notes, AIAPGET & AYUSH Updates">
+  <meta property="og:description" content="India's free Ayurveda education platform — BAMS Notes, AIAPGET MCQ, NCISM Updates, Daily Quiz, Job Alerts.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ayurvedstudies.com">
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/assets/img/logo.png" type="image/png">
-  <!-- Preconnect -->
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- ── Navbar ─────────────────────────────────────────────── -->
+<!-- ── Alert Bar ──────────────────────────────────── -->
+<div class="alert-bar" id="alert-bar" style="display:none">
+  🔔 <span id="alert-text">Latest Update loading...</span>
+</div>
+
+<!-- ── Navbar ─────────────────────────────────────── -->
 <nav class="navbar">
-  <div class="container navbar-inner">
-    <a href="/" class="navbar-brand">
-      <img src="/assets/img/logo.png" alt="Logo" onerror="this.style.display='none'">
-      <span>Ayurveda Quiz</span>
+  <div class="container nav-inner">
+
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-logo">🌿</div>
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
+      </div>
     </a>
-    <div class="navbar-menu" id="nav-menu">
-      <a href="/">Home</a>
-      <a href="/pages/bams.html?year=1">BAMS</a>
-      <a href="/pages/aiapget.html">AIAPGET</a>
-      <a href="/pages/samhita.html">Samhita</a>
-      <a href="/pages/govt-exam.html">Govt Exams</a>
-      <a href="/pages/daily-quiz.html">Daily Quiz</a>
-    </div>
-    <div class="navbar-actions">
-      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
-      <div class="hidden" id="nav-user-btn">
-        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
-        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;color:var(--text-mid);border:none">Logout</button>
+
+    <div class="nav-menu" id="nav-menu">
+      <a href="/" class="active">Home</a>
+
+      <!-- BAMS Dropdown -->
+      <div class="nav-dropdown">
+        <a href="/category/bams" class="nav-dropdown-trigger">BAMS <span class="nav-caret">▾</span></a>
+        <div class="nav-dropdown-menu">
+          <a href="/category/bams-1st-year">📚 1st Year</a>
+          <a href="/category/bams-2nd-year">📗 2nd Year</a>
+          <a href="/category/bams-3rd-year">📘 3rd Year</a>
+          <div class="nav-dd-divider"></div>
+          <a href="/category/aiapget">🎯 AIAPGET</a>
+          <a href="/category/ncism">📋 NCISM</a>
+        </div>
+      </div>
+
+      <a href="/blog-post/">Blog Posts</a>
+      <a href="/pages/quiz.html">Quiz <span class="new-badge">New</span></a>
+
+      <!-- Follow Us Dropdown -->
+      <div class="nav-dropdown">
+        <a href="#" class="nav-dropdown-trigger">Follow Us <span class="nav-caret">▾</span></a>
+        <div class="nav-dropdown-menu">
+          <a href="#" target="_blank" rel="noopener">▶ YouTube</a>
+          <a href="#" target="_blank" rel="noopener">📷 Instagram</a>
+          <a href="#" target="_blank" rel="noopener">✈ Telegram</a>
+          <div class="nav-dd-divider"></div>
+          <a href="https://play.google.com/store/apps/details?id=co.diy4.mvewg" target="_blank" rel="noopener">🤖 Android App</a>
+          <a href="https://apps.apple.com/in/app/ayurved-studies/id6747332414" target="_blank" rel="noopener"> iOS App</a>
+        </div>
       </div>
     </div>
-    <button class="navbar-hamburger" id="nav-burger">☰</button>
+
+    <div class="nav-actions">
+      <form class="nav-search" onsubmit="searchPosts(event)">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Search..." autocomplete="off">
+      </form>
+      <div id="nav-login-btn">
+        <a href="/pages/login.html" class="btn btn-primary btn-sm">Login</a>
+      </div>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name"></span></a>
+      </div>
+    </div>
+
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">☰</button>
   </div>
 </nav>
 
-<!-- ── Banner Slider ──────────────────────────────────────── -->
-<div class="banner-slider" id="banner-slider">
-  <div class="banner-slides" id="banner-slides">
-    <!-- Loaded by JS -->
-    <div class="banner-slide">
-      <div class="banner-content">
-        <h2>🌿 Ayurveda Quiz & Notes</h2>
-        <p>BAMS, AIAPGET, Samhita ke liye daily practice karein</p>
-        <a href="/pages/daily-quiz.html" class="btn btn-white btn-sm mt-2">Daily Quiz Start karein →</a>
+<!-- ── Site Intro / SEO Box ───────────────────────── -->
+<section class="site-intro">
+  <div class="container">
+    <div class="site-intro-inner">
+
+      <div class="site-intro-left">
+        <h1 class="site-intro-heading">
+          India's Ayurveda Learning Platform
+        </h1>
+        <p class="site-intro-tagline">
+          Curated BAMS Notes · AIAPGET MCQ Practice · NCISM Syllabus &amp; Updates · Daily Quiz · AYUSH Job Alerts · Counselling News · Samhita
+        </p>
       </div>
+
+      <div class="site-intro-features">
+        <a href="/category/bams" class="intro-feat">
+          <span class="intro-feat-icon">📚</span>
+          <span class="intro-feat-label">BAMS Notes</span>
+        </a>
+        <a href="/category/aiapget" class="intro-feat">
+          <span class="intro-feat-icon">🎯</span>
+          <span class="intro-feat-label">AIAPGET MCQ</span>
+        </a>
+        <a href="/category/ncism" class="intro-feat">
+          <span class="intro-feat-icon">📋</span>
+          <span class="intro-feat-label">NCISM Updates</span>
+        </a>
+        <a href="/pages/quiz.html" class="intro-feat">
+          <span class="intro-feat-icon">📅</span>
+          <span class="intro-feat-label">Daily Quiz</span>
+        </a>
+        <a href="/category/job-alerts-ayush" class="intro-feat">
+          <span class="intro-feat-icon">💼</span>
+          <span class="intro-feat-label">Job Alerts</span>
+        </a>
+        <a href="/category/counselling-news" class="intro-feat">
+          <span class="intro-feat-icon">🏥</span>
+          <span class="intro-feat-label">Counselling</span>
+        </a>
+        <a href="/category/samhita" class="intro-feat">
+          <span class="intro-feat-icon">📜</span>
+          <span class="intro-feat-label">Samhita</span>
+        </a>
+        <a href="/category/traditional-knowledge" class="intro-feat">
+          <span class="intro-feat-icon">🌿</span>
+          <span class="intro-feat-label">Trad. Knowledge</span>
+        </a>
+      </div>
+
     </div>
   </div>
-  <button class="banner-arrow prev" aria-label="Previous">‹</button>
-  <button class="banner-arrow next" aria-label="Next">›</button>
-  <div class="banner-dots" id="banner-dots"></div>
-</div>
+</section>
 
-<!-- ── Main Content ───────────────────────────────────────── -->
-<div class="container">
+<!-- ── Image Slider ───────────────────────────────── -->
+<section class="slider-section">
+  <div class="slider-outer" id="banner-slider-outer">
+    <!-- slides injected by JS -->
+    <div class="slider-placeholder">
+      <div class="spinner"></div>
+    </div>
+  </div>
+  <!-- dots & controls injected by JS -->
+</section>
 
-  <!-- Daily Quiz Highlight -->
-  <div class="section">
-    <div id="daily-quiz-box">
-      <!-- Loaded by JS -->
-      <div class="daily-quiz-box">
-        <div class="info">
-          <h3>📅 Daily Quiz Load ho raha hai...</h3>
+<!-- ── Category Cards ──────────────────────────────── -->
+<section class="categories-section">
+  <div class="container">
+    <div class="section-head" style="margin-bottom:16px">
+      <div class="section-title">
+        <div class="section-title-bar"></div>
+        Explore by Category
+      </div>
+    </div>
+    <div class="cat-cards">
+      <a href="/category/bams-1st-year" class="cat-card" style="border-bottom-color:#E67E22">
+        <div class="icon">📚</div>
+        <div class="name">BAMS 1st Year</div>
+        <div class="count">5 Subjects</div>
+      </a>
+      <a href="/category/bams-2nd-year" class="cat-card" style="border-bottom-color:#27AE60">
+        <div class="icon">📗</div>
+        <div class="name">BAMS 2nd Year</div>
+        <div class="count">4 Subjects</div>
+      </a>
+      <a href="/category/bams-3rd-year" class="cat-card" style="border-bottom-color:#2980B9">
+        <div class="icon">📘</div>
+        <div class="name">BAMS 3rd Year</div>
+        <div class="count">4 Subjects</div>
+      </a>
+      <a href="/category/samhita" class="cat-card" style="border-bottom-color:#8E44AD">
+        <div class="icon">📜</div>
+        <div class="name">Samhita</div>
+        <div class="count">Charaka, Sushruta...</div>
+      </a>
+      <a href="/category/aiapget" class="cat-card" style="border-bottom-color:#C0392B">
+        <div class="icon">🎯</div>
+        <div class="name">AIAPGET</div>
+        <div class="count">PYQ + Mock Tests</div>
+      </a>
+      <a href="/category/govt-exam" class="cat-card" style="border-bottom-color:#16A085">
+        <div class="icon">🏛</div>
+        <div class="name">Govt Exams</div>
+        <div class="count">State PSC, UPSC</div>
+      </a>
+      <a href="/pages/quiz.html?type=daily" class="cat-card" style="border-bottom-color:var(--accent)">
+        <div class="icon">📅</div>
+        <div class="name">Daily Quiz</div>
+        <div class="count">10 MCQ Daily</div>
+      </a>
+      <a href="/category/ncism" class="cat-card" style="border-bottom-color:#1a6e3c">
+        <div class="icon">📋</div>
+        <div class="name">NCISM</div>
+        <div class="count">Rules &amp; Updates</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── App Download Box ────────────────────────────── -->
+<section class="app-section">
+  <div class="container">
+    <div class="app-inner">
+      <div class="app-text">
+        <div class="app-tag">📱 Mobile App</div>
+        <h2>Download Ayurved Studies App</h2>
+        <p>BAMS Notes, AIAPGET Practice, Daily Quiz and AYUSH Updates — now on your phone! Available on Android and iOS.</p>
+        <div class="app-btns">
+          <a href="https://play.google.com/store/apps/details?id=co.diy4.mvewg" target="_blank" rel="noopener" class="app-store-btn android-btn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3.18 23.76a2 2 0 0 1-1-.28A2.08 2.08 0 0 1 1.1 21.6V2.4a2.08 2.08 0 0 1 1.08-1.88 2 2 0 0 1 2 .08l16.76 9.6a2 2 0 0 1 0 3.52L4.18 23.68a2 2 0 0 1-1 .08z"/></svg>
+            <div>
+              <div class="store-sub">Get it on</div>
+              <div class="store-name">Google Play</div>
+            </div>
+          </a>
+          <a href="https://apps.apple.com/in/app/ayurved-studies/id6747332414" target="_blank" rel="noopener" class="app-store-btn ios-btn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <div>
+              <div class="store-sub">Download on the</div>
+              <div class="store-name">App Store</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="app-visual">
+        <div class="app-phone-mock">
+          <div class="phone-notch"></div>
+          <div class="phone-screen-content">
+            <div class="phone-header">🌿 Ayurved Studies</div>
+            <div class="phone-card">📚 BAMS Notes</div>
+            <div class="phone-card" style="background:#fff3e0">🎯 AIAPGET MCQ</div>
+            <div class="phone-card" style="background:#e8f4fd">📅 Daily Quiz</div>
+            <div class="phone-card" style="background:#f3e5f5">📰 AYUSH Updates</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- Categories -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-title">📚 Categories</div>
-      <a href="/pages/bams.html?year=1" class="btn btn-outline btn-sm">Sab Dekhein</a>
-    </div>
-    <div class="categories-grid" id="categories-grid">
-      <!-- Loaded by JS -->
-      <div class="spinner-wrap"><div class="spinner"></div></div>
-    </div>
-  </div>
-
-  <!-- Quick Quiz Row -->
-  <div class="section">
-    <div class="section-title mb-2">⚡ Quick Quiz</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
-      <a href="/pages/quiz.html?type=random" class="card" style="border-left:4px solid var(--primary);display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)">
-        <span style="font-size:1.6rem">🎲</span>
-        <div><div style="font-weight:700">Random Quiz</div><div class="text-small text-muted">10 Random MCQs</div></div>
-      </a>
-      <a href="/pages/daily-quiz.html" class="card" style="border-left:4px solid var(--green);display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)">
-        <span style="font-size:1.6rem">📅</span>
-        <div><div style="font-weight:700">Daily Quiz</div><div class="text-small text-muted">Aaj ke 10 Questions</div></div>
-      </a>
-      <a href="/pages/quiz.html?type=weekly" class="card" style="border-left:4px solid var(--blue);display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)">
-        <span style="font-size:1.6rem">📆</span>
-        <div><div style="font-weight:700">Weekly Quiz</div><div class="text-small text-muted">20 Questions</div></div>
-      </a>
-      <a href="/pages/quiz.html?type=monthly" class="card" style="border-left:4px solid var(--purple);display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)">
-        <span style="font-size:1.6rem">🗓️</span>
-        <div><div style="font-weight:700">Monthly Quiz</div><div class="text-small text-muted">100 Questions</div></div>
-      </a>
-    </div>
-  </div>
-
-
-</div><!-- /container -->
-
-<!-- ── Footer ─────────────────────────────────────────────── -->
-<footer class="footer">
+<!-- ── Latest News & Updates (Tab Section) ─────────── -->
+<section class="news-section">
   <div class="container">
+
+    <div class="news-section-header">
+      <div>
+        <h2 class="news-section-title">Latest News &amp; Updates</h2>
+        <p class="news-section-sub">Stay informed with real-time updates across all Ayurveda categories</p>
+      </div>
+    </div>
+
+    <div class="news-tabs-wrap">
+      <div class="news-tabs" id="news-tabs">
+        <button class="news-tab active" data-cat="latest-news" data-name="Latest News" onclick="switchNewsTab(this)">
+          📰 Latest News
+        </button>
+        <button class="news-tab" data-cat="job-alerts-ayush" data-name="Job Alerts (AYUSH)" onclick="switchNewsTab(this)">
+          💼 Job Alerts (AYUSH)
+        </button>
+        <button class="news-tab" data-cat="counselling-news" data-name="Counselling News" onclick="switchNewsTab(this)">
+          🏥 Counselling News
+        </button>
+        <button class="news-tab" data-cat="aiapget-news" data-name="AIAPGET News" onclick="switchNewsTab(this)">
+          🎯 AIAPGET News
+        </button>
+        <button class="news-tab" data-cat="traditional-knowledge" data-name="Traditional Knowledge" onclick="switchNewsTab(this)">
+          📜 Traditional Knowledge
+        </button>
+        <button class="news-tab" data-cat="ayush-courses" data-name="AYUSH Courses" onclick="switchNewsTab(this)">
+          📚 AYUSH Courses
+        </button>
+      </div>
+    </div>
+
+    <div class="news-posts-grid" id="news-posts-list">
+      <div class="spinner-wrap" style="grid-column:1/-1"><div class="spinner"></div></div>
+    </div>
+
+    <div class="news-view-all">
+      <a href="/category/latest-news" id="news-view-all-link" class="news-view-all-btn">
+        View All <span id="news-view-all-cat">Latest News</span> →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Quiz Promo Banner ───────────────────────────── -->
+<div class="container" style="padding:0 18px 40px">
+  <div class="quiz-promo">
+    <div class="text">
+      <h3>🎯 Daily Quiz — Today's 10 MCQs</h3>
+      <p>Free daily practice for BAMS, AIAPGET and Govt Exams.</p>
+    </div>
+    <a href="/pages/quiz.html?type=daily" class="btn-white">Start Quiz →</a>
+  </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container footer-top">
     <div class="footer-grid">
-      <div class="footer-col">
-        <h4>🌿 Ayurveda Quiz</h4>
-        <p style="font-size:0.82rem;opacity:0.6">BAMS, AIAPGET aur Govt Exams ki taiyari ke liye best platform</p>
+      <div class="footer-brand">
+        <div class="site-name">🌿 Ayurved Studies</div>
+        <p>India's free Ayurveda education platform for BAMS, AIAPGET, NCISM and Govt Exams. Daily quiz, notes and latest updates.</p>
       </div>
       <div class="footer-col">
-        <h4>Categories</h4>
-        <a href="/pages/bams.html?year=1">BAMS 1st Year</a>
-        <a href="/pages/bams.html?year=2">BAMS 2nd Year</a>
-        <a href="/pages/bams.html?year=3">BAMS 3rd Year</a>
-        <a href="/pages/samhita.html">Samhita</a>
+        <h4>BAMS</h4>
+        <a href="/category/bams-1st-year">1st Year</a>
+        <a href="/category/bams-2nd-year">2nd Year</a>
+        <a href="/category/bams-3rd-year">3rd Year</a>
+        <a href="/category/samhita">Samhita</a>
       </div>
       <div class="footer-col">
         <h4>Exams</h4>
-        <a href="/pages/aiapget.html">AIAPGET</a>
-        <a href="/pages/govt-exam.html">Govt Exams</a>
-        <a href="/pages/daily-quiz.html">Daily Quiz</a>
+        <a href="/category/aiapget">AIAPGET</a>
+        <a href="/category/govt-exam">Govt Exams</a>
+        <a href="/category/ncism">NCISM</a>
+        <a href="/pages/quiz.html">Daily Quiz</a>
       </div>
       <div class="footer-col">
-        <h4>Account</h4>
+        <h4>Info</h4>
         <a href="/pages/login.html">Login / Register</a>
         <a href="/pages/profile.html">My Profile</a>
-        <a href="/admin/">Admin Panel</a>
+        <a href="/privacy-policy/">Privacy Policy</a>
+        <a href="/sitemap.xml">Sitemap</a>
       </div>
     </div>
-    <div class="footer-bottom">
-      © 2025 Ayurveda Quiz & Notes. All rights reserved.
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      © 2025 Ayurved Studies. All rights reserved. | Educational purpose only.
+      · <a href="/privacy-policy/" style="color:inherit;text-decoration:underline">Privacy Policy</a>
     </div>
   </div>
 </footer>

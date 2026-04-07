@@ -45,9 +45,20 @@ ServerSignature Off
   Deny from all
 </Files>
 
-# ── CORS for API (handled in PHP, block direct browser access) -
+# ── URL Routing ───────────────────────────────────────────────
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # Redirect api/config.php access
+
+  # Block direct config access
   RewriteRule ^api/config\.php$ - [F,L]
+
+  # Skip real files and directories
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Category pages: /category/bams/ → pages/category.html?slug=bams
+  RewriteRule ^category/([^/]+)/?$ /pages/category.html?slug=$1 [L,QSA]
+
+  # Blog post URLs: /some-post-slug/ → post.php?slug=some-post-slug
+  RewriteRule ^([a-z0-9][a-z0-9\-]+[a-z0-9])/?$ /post.php?slug=$1 [L,QSA]
 </IfModule>

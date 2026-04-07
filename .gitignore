@@ -1,6 +1,24 @@
+# ── Sensitive config (NEVER commit) ──────────────────
 api/config.php
-uploads/
-*.log
-.DS_Store
+api/db-local.php
 .env
+*.env
+
+# ── Uploaded files (stored on server, not in git) ────
+uploads/*
+!uploads/.gitkeep
+uploads/banners/*
+!uploads/banners/.gitkeep
+
+# ── Import scripts (delete after use on server) ───────
+database/set-admin-password.php
+
+# ── OS / Editor ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.log
+
+# ── Node / build (if ever added) ─────────────────────
 node_modules/
+dist/

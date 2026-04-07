@@ -53,6 +53,7 @@ async function api(endpoint, method = 'GET', body = null) {
 
 async function apiGet(endpoint) { return api(endpoint, 'GET'); }
 async function apiPost(endpoint, body) { return api(endpoint, 'POST', body); }
+async function apiDelete(endpoint, body) { return api(endpoint, 'DELETE', body); }
 
 // ── Toast Notifications ────────────────────────────────────────
 const Toast = (() => {

@@ -1,174 +1,234 @@
 /* ============================================================
-   home.js — Homepage: Banner Slider + Daily Quiz + Categories
+   home.js — Homepage: Banner Slider + News Tabs + Mobile Nav
    ============================================================ */
 
-document.addEventListener('DOMContentLoaded', async () => {
-  initBannerSlider();
-  await Promise.all([loadDailyQuiz(), loadCategories()]);
+document.addEventListener('DOMContentLoaded', () => {
+  loadBannerSlider();
+  loadNewsPosts('latest-news');
+  initMobileNav();
 });
 
-// ── Banner Slider ─────────────────────────────────────────────
-async function initBannerSlider() {
-  const wrap    = document.getElementById('banner-slides');
-  const dotsWrap= document.getElementById('banner-dots');
-  if (!wrap) return;
+// ── Banner / Image Slider ─────────────────────────────────────
+let _sliderIdx   = 0;
+let _sliderItems = [];
+let _sliderTimer = null;
 
-  // Load banners from API
-  let banners = [];
+async function loadBannerSlider() {
+  const outer = document.getElementById('banner-slider-outer');
+  if (!outer) return;
+
   try {
     const res = await apiGet('public/banners.php');
-    if (res.success && res.data.length) banners = res.data;
-  } catch {}
+    _sliderItems = res?.data || [];
+  } catch { _sliderItems = []; }
 
-  // Fallback default banner
-  if (!banners.length) {
-    banners = [{
-      title: 'Ayurveda Quiz & Notes',
-      subtitle: 'BAMS, AIAPGET, Govt Exams ke liye daily practice',
-      image_url: '',
-      link_url: ''
-    }];
+  // Fallback default banner if no banners added yet
+  if (!_sliderItems.length) {
+    _sliderItems = [
+      {
+        title: 'Welcome to Ayurved Studies',
+        subtitle: 'Free BAMS Notes · AIAPGET MCQ · NCISM Updates · Daily Quiz',
+        image_url: '',
+        link_url: '/pages/quiz.html',
+        color: '#1a6e3c'
+      },
+      {
+        title: 'AIAPGET Preparation 2025',
+        subtitle: 'Topic-wise MCQs, Previous Year Papers and Mock Tests',
+        image_url: '',
+        link_url: '/category/aiapget',
+        color: '#0170B9'
+      },
+      {
+        title: 'Daily Quiz — 10 MCQs Every Day',
+        subtitle: 'Practice daily to crack BAMS & AYUSH competitive exams',
+        image_url: '',
+        link_url: '/pages/quiz.html?type=daily',
+        color: '#E67E22'
+      }
+    ];
   }
 
-  let current = 0;
-
-  function render() {
-    wrap.innerHTML = banners.map((b, i) => `
-      <div class="banner-slide" style="${b.color ? `background:${b.color}` : ''}">
-        ${b.image_url ? `<img src="${b.image_url}" alt="${b.title||''}" loading="${i===0?'eager':'lazy'}">` : ''}
-        <div class="banner-content">
-          ${b.title    ? `<h2>${b.title}</h2>` : ''}
-          ${b.subtitle ? `<p>${b.subtitle}</p>` : ''}
-          ${b.link_url ? `<a href="${b.link_url}" class="btn btn-white btn-sm mt-2">Explore →</a>` : ''}
-        </div>
-      </div>`).join('');
-
-    if (dotsWrap) {
-      dotsWrap.innerHTML = banners.map((_, i) =>
-        `<div class="banner-dot ${i===0?'active':''}" data-i="${i}"></div>`).join('');
-      dotsWrap.querySelectorAll('.banner-dot').forEach(d =>
-        d.addEventListener('click', () => goTo(+d.dataset.i)));
-    }
-  }
-
-  function goTo(n) {
-    current = (n + banners.length) % banners.length;
-    wrap.style.transform = `translateX(-${current * 100}%)`;
-    document.querySelectorAll('.banner-dot').forEach((d, i) =>
-      d.classList.toggle('active', i === current));
-  }
-
-  render();
-
-  // Arrow buttons
-  document.querySelector('.banner-arrow.prev')?.addEventListener('click', () => goTo(current - 1));
-  document.querySelector('.banner-arrow.next')?.addEventListener('click', () => goTo(current + 1));
-
-  // Auto-play
-  if (banners.length > 1) setInterval(() => goTo(current + 1), 4500);
-
-  // Touch swipe support
-  let startX = 0;
-  const slider = document.getElementById('banner-slider');
-  if (slider) {
-    slider.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-    slider.addEventListener('touchend', e => {
-      const diff = startX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 40) goTo(diff > 0 ? current + 1 : current - 1);
-    });
-  }
+  _buildSlider(outer);
+  _startSliderAuto();
 }
 
-// ── Daily Quiz Box ─────────────────────────────────────────────
-async function loadDailyQuiz() {
-  const box = document.getElementById('daily-quiz-box');
-  if (!box) return;
+function _buildSlider(outer) {
+  // Clear placeholder
+  outer.innerHTML = '';
 
-  const today = todayStr();
+  // Track
+  const track = document.createElement('div');
+  track.className = 'slider-track';
+  track.id = 'slider-track';
 
-  try {
-    const res = await apiGet(`public/daily-quiz.php?date=${today}`);
-    if (!res.success || !res.data) {
-      box.innerHTML = `<div class="daily-quiz-box">
-        <div class="info"><h3>📅 Daily Quiz</h3><p>Aaj ka quiz abhi available nahi hai</p></div>
-      </div>`;
-      return;
-    }
+  _sliderItems.forEach((b, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'slide';
 
-    const quiz  = res.data;
-    const done  = quiz.attempted;
-    const score = quiz.last_score;
-
-    if (done) {
-      box.innerHTML = `
-        <div class="daily-quiz-box daily-quiz-completed">
-          <div class="info">
-            <h3>✅ Aaj ka Quiz Complete!</h3>
-            <p>${formatDate(today)} ka daily quiz aapne complete kar liya</p>
-            <div class="meta">
-              <span>Score: ${score?.score ?? '-'}/${score?.total ?? 10}</span>
-              <span>🔥 Streak jari rakhein</span>
-            </div>
-          </div>
-          <div>
-            <a href="/pages/result.html?attempt=${score?.attempt_id}" class="btn btn-white btn-sm">Result Dekhein →</a>
-          </div>
-        </div>`;
+    if (b.image_url) {
+      // Image-only slide with optional link
+      const img = `<img src="${esc(b.image_url)}" alt="${esc(b.title || 'Banner')}" class="slide-img" loading="${i === 0 ? 'eager' : 'lazy'}">`;
+      slide.innerHTML = b.link_url
+        ? `<a href="${esc(b.link_url)}" ${b.link_url.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}>${img}</a>`
+        : img;
     } else {
-      box.innerHTML = `
-        <div class="daily-quiz-box">
-          <div class="info">
-            <h3>📅 Aaj ka Daily Quiz</h3>
-            <p>${formatDate(today)} — ${quiz.title || '10 Important MCQs'}</p>
-            <div class="meta">
-              <span>10 Questions</span>
-              <span>~10 Minutes</span>
-            </div>
-          </div>
-          <div>
-            <a href="/pages/quiz.html?type=daily&date=${today}" class="btn btn-white btn-lg">
-              Attempt Now →
-            </a>
-          </div>
-        </div>`;
+      // Fallback: colored placeholder (only shown if no image uploaded)
+      slide.innerHTML = `<div class="slide-no-img" style="background:${esc(b.color || '#1a6e3c')}"></div>`;
     }
-  } catch {
-    box.innerHTML = `<div class="daily-quiz-box"><div class="info"><h3>📅 Daily Quiz</h3><p>Load hone mein error aaya</p></div></div>`;
+
+    track.appendChild(slide);
+  });
+
+  outer.appendChild(track);
+
+  // Prev / Next buttons (only if more than one slide)
+  if (_sliderItems.length > 1) {
+    const prev = document.createElement('button');
+    prev.className = 'slider-btn slider-btn-prev';
+    prev.setAttribute('aria-label', 'Previous');
+    prev.innerHTML = '&#8249;';
+    prev.onclick = () => { _sliderGo(_sliderIdx - 1); _resetAuto(); };
+
+    const next = document.createElement('button');
+    next.className = 'slider-btn slider-btn-next';
+    next.setAttribute('aria-label', 'Next');
+    next.innerHTML = '&#8250;';
+    next.onclick = () => { _sliderGo(_sliderIdx + 1); _resetAuto(); };
+
+    outer.appendChild(prev);
+    outer.appendChild(next);
+
+    // Dots
+    const dotsWrap = document.createElement('div');
+    dotsWrap.className = 'slider-dots';
+    dotsWrap.id = 'slider-dots';
+    _sliderItems.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Slide ${i + 1}`);
+      dot.onclick = () => { _sliderGo(i); _resetAuto(); };
+      dotsWrap.appendChild(dot);
+    });
+    outer.appendChild(dotsWrap);
   }
+
+  // Touch / swipe
+  let touchStartX = 0;
+  outer.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  outer.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) { _sliderGo(_sliderIdx + (diff > 0 ? 1 : -1)); _resetAuto(); }
+  });
 }
 
-// ── Categories Grid ────────────────────────────────────────────
-async function loadCategories() {
-  const grid = document.getElementById('categories-grid');
+function _sliderGo(n) {
+  _sliderIdx = ((n % _sliderItems.length) + _sliderItems.length) % _sliderItems.length;
+  const track = document.getElementById('slider-track');
+  if (track) track.style.transform = `translateX(-${_sliderIdx * 100}%)`;
+  document.querySelectorAll('.slider-dot').forEach((d, i) => d.classList.toggle('active', i === _sliderIdx));
+}
+
+function _startSliderAuto() {
+  if (_sliderItems.length < 2) return;
+  _sliderTimer = setInterval(() => _sliderGo(_sliderIdx + 1), 5000);
+}
+
+function _resetAuto() {
+  clearInterval(_sliderTimer);
+  _startSliderAuto();
+}
+
+// ── News Tabs ─────────────────────────────────────────────────
+let _activeNewsSlug = 'latest-news';
+
+function switchNewsTab(btn) {
+  document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  _activeNewsSlug = btn.dataset.cat;
+  const name = btn.dataset.name;
+  loadNewsPosts(_activeNewsSlug);
+  const linkEl = document.getElementById('news-view-all-link');
+  const catEl  = document.getElementById('news-view-all-cat');
+  if (linkEl) linkEl.href = `/category/${_activeNewsSlug}`;
+  if (catEl)  catEl.textContent = name;
+}
+
+async function loadNewsPosts(category) {
+  const grid = document.getElementById('news-posts-list');
   if (!grid) return;
 
-  showSpinner(grid);
+  grid.innerHTML = '<div class="spinner-wrap" style="grid-column:1/-1;padding:48px"><div class="spinner"></div></div>';
 
   try {
-    const res = await apiGet('public/categories.php?root=1');
-    if (!res.success || !res.data.length) {
-      grid.innerHTML = '<div class="empty-state"><div class="icon">📚</div><p>Categories load nahi hue</p></div>';
+    const res = await apiGet(`public/posts.php?category=${encodeURIComponent(category)}&limit=6`);
+    const posts = res?.data?.posts || [];
+
+    if (!posts.length) {
+      grid.innerHTML = '<div class="news-empty">No posts found in this category yet.</div>';
       return;
     }
-
-    grid.innerHTML = res.data.map(cat => `
-      <a href="${getCategoryUrl(cat)}" class="category-card" style="--card-color:${cat.color}">
-        <span class="icon">${cat.icon || '📚'}</span>
-        <div class="name">${cat.name}</div>
-        ${cat.question_count ? `<div class="count">${cat.question_count} Questions</div>` : ''}
-        <div class="color-bar"></div>
-      </a>`).join('');
+    grid.innerHTML = posts.map((p, i) => _newsCardHtml(p, i)).join('');
   } catch {
-    grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error loading categories</p></div>';
+    grid.innerHTML = '<div class="news-empty">Failed to load posts. Please refresh.</div>';
   }
 }
 
-function getCategoryUrl(cat) {
-  switch (cat.type) {
-    case 'bams_year':  return `/pages/bams.html?year=${cat.bams_year}&id=${cat.id}`;
-    case 'samhita':    return `/pages/samhita.html`;
-    case 'aiapget':    return `/pages/aiapget.html`;
-    case 'govt_exam':  return `/pages/govt-exam.html`;
-    default:           return `/pages/subject.html?id=${cat.id}`;
+function _newsCardHtml(p, index) {
+  const newBadge  = index < 2 ? '<span class="badge-new">🔴 New</span>' : '';
+  const mustBadge = p.featured ? '<span class="badge-must">📋 Must Read</span>' : '';
+  const catBadge  = p.category ? `<span class="news-card-cat-badge">${esc(p.category)}</span>` : '';
+
+  return `
+    <a href="/${esc(p.slug)}/" class="news-card">
+      <div class="news-card-top">
+        <div class="news-card-badges">${catBadge}${newBadge}${mustBadge}</div>
+        <span class="news-card-arrow">→</span>
+      </div>
+      <span class="news-card-title">${esc(p.title)}</span>
+      <div class="news-card-meta">${fmtDate(p.published_at)} · By ${esc(p.author || 'Admin')}</div>
+    </a>`;
+}
+
+// ── Mobile Nav ────────────────────────────────────────────────
+function initMobileNav() {
+  const burger  = document.getElementById('nav-burger');
+  const navMenu = document.getElementById('nav-menu');
+
+  if (burger && navMenu) {
+    burger.addEventListener('click', () => navMenu.classList.toggle('open'));
   }
+
+  // Mobile dropdown toggles
+  document.querySelectorAll('.nav-dropdown-trigger').forEach(trigger => {
+    trigger.addEventListener('click', e => {
+      if (window.innerWidth > 960) return;
+      e.preventDefault();
+      const menu   = trigger.nextElementSibling;
+      const isOpen = menu.classList.contains('mob-open');
+      document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('mob-open'));
+      document.querySelectorAll('.nav-caret').forEach(c => c.style.transform = '');
+      if (!isOpen) {
+        menu.classList.add('mob-open');
+        trigger.querySelector('.nav-caret').style.transform = 'rotate(180deg)';
+      }
+    });
+  });
+
+  // Close nav on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.navbar')) navMenu?.classList.remove('open');
+  });
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function fmtDate(dt) {
+  if (!dt) return '';
+  return new Date(dt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }

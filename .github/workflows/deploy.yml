@@ -1,0 +1,37 @@
+name: Deploy to Hostinger
+
+# Trigger: Jab bhi main branch pe push ho → auto deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: FTP Deploy to Hostinger
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Code checkout
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: FTP se Hostinger pe deploy karo
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/
+          protocol: ftp
+          port: 21
+          # Yeh files KABHI upload mat karo:
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            api/config.php
+            uploads/**
+            database/set-admin-password.php
+            .github/**

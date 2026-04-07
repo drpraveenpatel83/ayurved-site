@@ -149,6 +149,28 @@ CREATE TABLE IF NOT EXISTS `banners` (
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `posts` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `title` VARCHAR(500) NOT NULL,
+  `slug` VARCHAR(520) NOT NULL,
+  `excerpt` TEXT DEFAULT NULL,
+  `content` LONGTEXT DEFAULT NULL,
+  `thumbnail` VARCHAR(500) DEFAULT NULL,
+  `category` VARCHAR(100) DEFAULT NULL,
+  `category_slug` VARCHAR(120) DEFAULT NULL,
+  `author` VARCHAR(150) DEFAULT 'Admin',
+  `is_published` TINYINT(1) DEFAULT 1,
+  `is_featured` TINYINT(1) DEFAULT 0,
+  `view_count` INT UNSIGNED DEFAULT 0,
+  `published_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `uq_slug` (`slug`),
+  KEY `idx_category` (`category_slug`),
+  KEY `idx_published` (`is_published`,`published_at`),
+  KEY `idx_featured` (`is_featured`,`is_published`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS=1;
 
 -- ── Default Data ──────────────────────────────────────────────

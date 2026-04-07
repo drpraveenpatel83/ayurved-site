@@ -147,6 +147,8 @@ body.admin-body { background: #F4F6F9; font-family: 'Segoe UI', Arial, sans-seri
 /* ── Rich text editor area ──────────────────────────────────── */
 #ql-editor-container .ql-toolbar { border-radius: 7px 7px 0 0; border-color: #D5D8DC; background: #F8FAFC; }
 #ql-editor-container .ql-container { border-radius: 0 0 7px 7px; border-color: #D5D8DC; min-height: 220px; font-size: 0.93rem; }
+#post-editor .ql-toolbar { border-radius: 6px 6px 0 0; border-color: #ddd; background: #F8FAFC; }
+#post-editor .ql-container { border-radius: 0 0 6px 6px; border-color: #ddd; min-height: 280px; font-size: 0.93rem; }
 
 /* ── Upload area ─────────────────────────────────────────────── */
 .upload-area {

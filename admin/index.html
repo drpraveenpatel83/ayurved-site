@@ -47,6 +47,7 @@
       <div class="admin-nav-section">Overview</div>
       <a class="active" data-panel="dashboard" onclick="showPanel('dashboard')"><span class="nav-icon">📊</span> Dashboard</a>
       <div class="admin-nav-section">Content</div>
+      <a data-panel="posts" onclick="showPanel('posts')"><span class="nav-icon">📝</span> Blog Posts</a>
       <a data-panel="questions" onclick="showPanel('questions')"><span class="nav-icon">❓</span> Questions</a>
       <a data-panel="daily-quiz" onclick="showPanel('daily-quiz')"><span class="nav-icon">📅</span> Daily Quiz</a>
       <a data-panel="notes" onclick="showPanel('notes')"><span class="nav-icon">📖</span> Notes & Syllabus</a>
@@ -199,6 +200,25 @@
         </div>
       </div>
 
+      <!-- ── BLOG POSTS ──────────────────────────────────────── -->
+      <div class="admin-panel" id="panel-posts">
+        <div class="panel-header">
+          <div class="panel-title">Blog Posts</div>
+          <button class="btn-admin btn-admin-primary" onclick="openPostModal()">➕ New Post</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <input type="text" id="posts-search" placeholder="Title search..." style="flex:1;min-width:180px;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:0.85rem" oninput="loadPosts()">
+          <input type="text" id="posts-cat-filter" placeholder="Category slug..." style="width:160px;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:0.85rem" oninput="loadPosts()">
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Title</th><th>Category</th><th>Author</th><th>Published</th><th>Views</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="posts-tbody"><tr><td colspan="8" style="text-align:center;padding:20px">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="posts-pagination" style="text-align:center;padding:16px"></div>
+      </div>
+
       <!-- ── CATEGORIES ─────────────────────────────────────── -->
       <div class="admin-panel" id="panel-categories">
         <div class="panel-header">
@@ -229,6 +249,153 @@
 </div><!-- /admin-layout -->
 
 <!-- ── MODALS ──────────────────────────────────────────────── -->
+
+<!-- Post Modal -->
+<div id="post-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;overflow-y:auto;display:none">
+  <div style="background:white;max-width:860px;margin:24px auto;border-radius:12px;padding:28px 32px">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #f0f2f5">
+      <h3 id="post-modal-title" style="font-size:1.1rem;font-weight:800">New Post</h3>
+      <button onclick="closeModal('post-modal')" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#95a5a6">✕</button>
+    </div>
+
+    <form id="post-form" onsubmit="savePost(event)">
+      <input type="hidden" id="pf-id">
+
+      <!-- ① TITLE + SLUG -->
+      <div style="margin-bottom:18px">
+        <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:6px">Post Title *</label>
+        <input type="text" id="pf-title" required placeholder="e.g. AIAPGET 2025 Complete Syllabus — Subject-wise Guide"
+               style="width:100%;padding:10px 14px;border:1.5px solid #e0e6ec;border-radius:8px;font-size:1rem;font-weight:600"
+               oninput="autoSlug()">
+      </div>
+      <div style="margin-bottom:22px">
+        <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:4px">
+          URL Slug <small style="font-weight:400;text-transform:none;letter-spacing:0">(auto-generated from title)</small>
+        </label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:0.82rem;color:#95a5a6">ayurvedstudies.com/</span>
+          <input type="text" id="pf-slug" placeholder="auto-generated"
+                 style="flex:1;padding:7px 12px;border:1.5px solid #e0e6ec;border-radius:6px;font-family:monospace;font-size:0.82rem">
+          <span style="font-size:0.82rem;color:#95a5a6">/</span>
+        </div>
+      </div>
+
+      <!-- ② TWO COLUMN: Category + Meta -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+        <div>
+          <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:6px">Category *</label>
+          <!-- Dropdown from existing + manual override -->
+          <select id="pf-cat-select" onchange="onPostCatSelect()"
+                  style="width:100%;padding:9px 12px;border:1.5px solid #e0e6ec;border-radius:8px;font-size:0.88rem;background:#fff;margin-bottom:6px">
+            <option value="">— Select or type below —</option>
+            <option value="latest-news|Latest News">📰 Latest News</option>
+            <option value="job-alerts-ayush|Job Alerts (AYUSH)">💼 Job Alerts (AYUSH)</option>
+            <option value="counselling-news|Counselling News">🏥 Counselling News</option>
+            <option value="aiapget-news|AIAPGET News">🎯 AIAPGET News</option>
+            <option value="traditional-knowledge|Traditional Knowledge">📜 Traditional Knowledge</option>
+            <option value="ayush-courses|AYUSH Courses">📚 AYUSH Courses</option>
+            <option value="bams-1st-year|BAMS 1st Year">📗 BAMS 1st Year</option>
+            <option value="bams-2nd-year|BAMS 2nd Year">📗 BAMS 2nd Year</option>
+            <option value="bams-3rd-year|BAMS 3rd Year">📘 BAMS 3rd Year</option>
+            <option value="aiapget|AIAPGET">🏆 AIAPGET</option>
+            <option value="ncism|NCISM">📋 NCISM</option>
+            <option value="samhita|Samhita">📜 Samhita</option>
+            <option value="govt-exam|Govt Exams">🏛 Govt Exams</option>
+            <option value="_custom_">+ Custom Category</option>
+          </select>
+          <input type="text" id="pf-category" placeholder="Category name" oninput="autoCatSlug()"
+                 style="width:100%;padding:7px 12px;border:1.5px solid #e0e6ec;border-radius:6px;font-size:0.85rem">
+          <input type="text" id="pf-category-slug" placeholder="category-slug"
+                 style="width:100%;margin-top:5px;padding:7px 12px;border:1.5px solid #e0e6ec;border-radius:6px;font-family:monospace;font-size:0.78rem">
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:6px">Author</label>
+          <input type="text" id="pf-author" value="Admin"
+                 style="width:100%;padding:9px 12px;border:1.5px solid #e0e6ec;border-radius:8px;font-size:0.88rem;margin-bottom:10px">
+          <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:6px">Published Date</label>
+          <input type="datetime-local" id="pf-published-at"
+                 style="width:100%;padding:9px 12px;border:1.5px solid #e0e6ec;border-radius:8px;font-size:0.85rem">
+        </div>
+      </div>
+
+      <!-- ③ THUMBNAIL UPLOAD -->
+      <div style="margin-bottom:18px">
+        <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:8px">
+          Thumbnail Image <small style="font-weight:400;text-transform:none">— recommended 1200×630 px</small>
+        </label>
+        <!-- Preview -->
+        <div id="pf-thumb-preview" style="width:100%;height:160px;background:#f4f6f8;border:2px dashed #d0d8e4;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;overflow:hidden;cursor:pointer" onclick="document.getElementById('pf-thumb-file').click()">
+          <span id="pf-thumb-preview-label" style="color:#95a5a6;font-size:0.88rem;text-align:center">
+            🖼 Click here to upload image<br><small>or paste URL below</small>
+          </span>
+        </div>
+        <!-- Upload Controls -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="btn-admin btn-admin-primary" style="padding:7px 16px;font-size:0.82rem"
+                  onclick="document.getElementById('pf-thumb-file').click()" id="pf-thumb-upload-btn">
+            📤 Upload from Computer
+          </button>
+          <input type="file" id="pf-thumb-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadPostThumb(this)">
+          <span style="font-size:0.78rem;color:#95a5a6">or</span>
+          <input type="url" id="pf-thumbnail" placeholder="Paste image URL: https://..."
+                 style="flex:1;min-width:200px;padding:7px 12px;border:1.5px solid #e0e6ec;border-radius:6px;font-size:0.82rem"
+                 oninput="previewPostThumb(this.value)">
+        </div>
+        <div id="pf-thumb-status" style="font-size:0.8rem;margin-top:6px;height:18px"></div>
+      </div>
+
+      <!-- ④ EXCERPT / SEO META -->
+      <div style="margin-bottom:18px">
+        <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:4px">
+          SEO Meta Description / Excerpt
+          <span id="pf-excerpt-count" style="font-weight:400;color:#95a5a6;text-transform:none;font-size:0.75rem;margin-left:8px">0 / 160 chars</span>
+        </label>
+        <textarea id="pf-excerpt" rows="2" maxlength="300"
+                  placeholder="160 characters mein post ka summary — Google search result mein yahi dikhega..."
+                  style="width:100%;padding:10px 14px;border:1.5px solid #e0e6ec;border-radius:8px;font-size:0.88rem;resize:vertical"
+                  oninput="updateExcerptCount()"></textarea>
+        <div id="pf-excerpt-hint" style="font-size:0.75rem;color:#95a5a6;margin-top:3px">
+          💡 100–160 characters ideal for Google SEO
+        </div>
+      </div>
+
+      <!-- ⑤ CONTENT EDITOR -->
+      <div style="margin-bottom:18px">
+        <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:8px">Post Content *</label>
+        <div id="post-editor" style="min-height:320px;font-size:0.95rem"></div>
+        <input type="hidden" id="pf-content">
+      </div>
+
+      <!-- ⑥ STATUS ROW -->
+      <div style="display:flex;gap:28px;align-items:center;background:#f8f9fa;border-radius:8px;padding:14px 18px;margin-bottom:20px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;font-weight:600">
+          <input type="checkbox" id="pf-published" checked style="width:16px;height:16px;accent-color:#1a6e3c">
+          <span>✅ Published (Live)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;font-weight:600">
+          <input type="checkbox" id="pf-featured" style="width:16px;height:16px;accent-color:#E67E22">
+          <span>⭐ Featured (Must Read badge)</span>
+        </label>
+      </div>
+
+      <!-- ⑦ SAVE BUTTONS -->
+      <div style="display:flex;gap:10px">
+        <button type="submit" class="btn-admin btn-admin-primary" id="post-save-btn" style="padding:10px 28px;font-size:0.92rem">
+          💾 Save Post
+        </button>
+        <button type="submit" id="post-draft-btn" class="btn-admin btn-admin-outline" style="padding:10px 20px;font-size:0.88rem"
+                onclick="document.getElementById('pf-published').checked=false">
+          Save as Draft
+        </button>
+        <button type="button" onclick="closeModal('post-modal')" class="btn-admin btn-admin-outline" style="margin-left:auto">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Question Modal -->
 <div id="q-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;display:none">
@@ -394,35 +561,47 @@
 
 <!-- Banner Modal -->
 <div id="banner-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;display:none">
-  <div style="background:white;max-width:500px;margin:24px auto;border-radius:12px;padding:24px">
+  <div style="background:white;max-width:540px;margin:24px auto;border-radius:12px;padding:24px">
     <div style="display:flex;justify-content:space-between;margin-bottom:16px">
-      <h3>Add Banner</h3>
+      <h3 id="banner-modal-title">Add Banner</h3>
       <button onclick="closeModal('banner-modal')" style="background:none;border:none;font-size:1.3rem;cursor:pointer">✕</button>
     </div>
     <form id="banner-form" onsubmit="saveBanner(event)">
       <input type="hidden" id="bf-id">
+
+      <!-- Image Upload Area -->
       <div class="form-field" style="margin-bottom:14px">
-        <label>Image URL *</label>
-        <input type="text" id="bf-img" required placeholder="https://... ya /uploads/banners/img.jpg">
+        <label>Banner Image *</label>
+        <!-- Preview -->
+        <div id="bf-img-preview" style="width:100%;aspect-ratio:21/7;background:#f0f4f8;border-radius:8px;margin-bottom:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:2px dashed #cdd5df">
+          <span style="color:#95a5a6;font-size:0.82rem" id="bf-preview-label">No image selected</span>
+        </div>
+        <!-- Upload button + file input -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="btn-admin btn-admin-primary" onclick="document.getElementById('bf-file-input').click()" id="bf-upload-btn">
+            📤 Upload Image
+          </button>
+          <input type="file" id="bf-file-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="uploadBannerImage(this)">
+          <span style="font-size:0.78rem;color:#7F8C8D">or paste URL below</span>
+        </div>
+        <input type="text" id="bf-img" required placeholder="https://... or /uploads/banners/img.jpg" style="margin-top:8px" oninput="previewBannerUrl(this.value)">
+        <small style="color:#888">Recommended size: 1200 × 400 px (JPG/PNG/WebP, max 5MB)</small>
       </div>
+
       <div class="form-field" style="margin-bottom:14px">
-        <label>Title</label>
-        <input type="text" id="bf-title" placeholder="Banner heading">
+        <label>Link URL (where to go on click)</label>
+        <input type="text" id="bf-link" placeholder="/category/aiapget or https://...">
       </div>
-      <div class="form-field" style="margin-bottom:14px">
-        <label>Subtitle</label>
-        <input type="text" id="bf-subtitle" placeholder="Subheading text">
-      </div>
-      <div class="form-field" style="margin-bottom:14px">
-        <label>Link URL</label>
-        <input type="text" id="bf-link" placeholder="/pages/aiapget.html">
-      </div>
-      <div class="form-field" style="margin-bottom:20px">
-        <label>Background Color</label>
-        <input type="color" id="bf-color" value="#E67E22">
-      </div>
+
+      <!-- Hidden fields kept for API compatibility but not shown (image-only slider) -->
+      <input type="hidden" id="bf-title" value="Banner">
+      <input type="hidden" id="bf-subtitle" value="">
+      <input type="hidden" id="bf-color" value="#1a6e3c">
+
+      <div id="bf-upload-status" style="font-size:0.82rem;margin-bottom:10px"></div>
+
       <div class="form-actions">
-        <button type="submit" class="btn-admin btn-admin-primary">Save Banner</button>
+        <button type="submit" class="btn-admin btn-admin-primary" id="bf-save-btn">Save Banner</button>
         <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('banner-modal')">Cancel</button>
       </div>
     </form>

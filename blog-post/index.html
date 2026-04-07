@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Blog Posts – Ayurved Studies</title>
+  <meta name="description" content="Read all articles on BAMS, AIAPGET, NCISM, AYUSH Job Alerts, Counselling News, Samhita and Traditional Knowledge at Ayurved Studies.">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── Blog page specific ── */
+    .blog-page-header{background:linear-gradient(135deg,var(--primary) 0%,#0d4a28 100%);color:#fff;padding:36px 0 28px}
+    .blog-page-header h1{font-size:1.6rem;font-weight:800;margin-bottom:8px}
+    .blog-page-header p{font-size:0.9rem;opacity:.85}
+    .blog-controls{background:#fff;border-bottom:2px solid var(--border);padding:16px 0;position:sticky;top:62px;z-index:100}
+    .blog-controls-inner{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .blog-search-wrap{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:24px;padding:8px 16px;flex:1;min-width:200px;max-width:340px}
+    .blog-search-wrap input{border:none;background:transparent;outline:none;font-size:0.88rem;width:100%;font-family:var(--font)}
+    .blog-result-count{font-size:0.82rem;color:var(--text-mid);margin-left:auto;white-space:nowrap}
+    .blog-filter-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+    .blog-filter-wrap::-webkit-scrollbar{display:none}
+    .blog-filter-tabs{display:flex;gap:6px;min-width:max-content;padding:12px 0 4px}
+    .blog-filter-tab{background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:6px 16px;font-size:0.82rem;font-weight:600;color:var(--text-mid);cursor:pointer;white-space:nowrap;transition:.18s;font-family:var(--font)}
+    .blog-filter-tab:hover{border-color:var(--primary);color:var(--primary)}
+    .blog-filter-tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    .blog-grid-section{padding:28px 0 48px}
+    .blog-empty{grid-column:1/-1;text-align:center;padding:64px 20px;color:var(--text-mid)}
+    .blog-empty .icon{font-size:3rem;margin-bottom:12px}
+    .blog-empty p{font-size:0.92rem}
+    .blog-load-more-wrap{grid-column:1/-1;text-align:center;margin-top:12px}
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-logo">🌿</div>
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
+      </div>
+    </a>
+    <div class="nav-menu" id="nav-menu">
+      <a href="/">Home</a>
+      <div class="nav-dropdown">
+        <a href="/category/bams" class="nav-dropdown-trigger">BAMS <span class="nav-caret">▾</span></a>
+        <div class="nav-dropdown-menu">
+          <a href="/category/bams-1st-year">📚 1st Year</a>
+          <a href="/category/bams-2nd-year">📗 2nd Year</a>
+          <a href="/category/bams-3rd-year">📘 3rd Year</a>
+          <div class="nav-dd-divider"></div>
+          <a href="/category/aiapget">🎯 AIAPGET</a>
+          <a href="/category/ncism">📋 NCISM</a>
+        </div>
+      </div>
+      <a href="/blog-post/" class="active">Blog Posts</a>
+      <a href="/pages/quiz.html">Quiz <span class="new-badge">New</span></a>
+      <div class="nav-dropdown">
+        <a href="#" class="nav-dropdown-trigger">Follow Us <span class="nav-caret">▾</span></a>
+        <div class="nav-dropdown-menu">
+          <a href="#" target="_blank" rel="noopener">▶ YouTube</a>
+          <a href="#" target="_blank" rel="noopener">📷 Instagram</a>
+          <a href="#" target="_blank" rel="noopener">✈ Telegram</a>
+          <div class="nav-dd-divider"></div>
+          <a href="https://play.google.com/store/apps/details?id=co.diy4.mvewg" target="_blank" rel="noopener">🤖 Android App</a>
+          <a href="https://apps.apple.com/in/app/ayurved-studies/id6747332414" target="_blank" rel="noopener"> iOS App</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <div id="nav-login-btn"><a href="/pages/login.html" class="btn btn-primary btn-sm">Login</a></div>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name"></span></a>
+      </div>
+    </div>
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- ── Page Header ────────────────────────────────── -->
+<div class="blog-page-header">
+  <div class="container">
+    <h1>All Blog Posts</h1>
+    <p>Browse BAMS Notes, AIAPGET Prep, NCISM Updates, Job Alerts, Counselling News &amp; more</p>
+  </div>
+</div>
+
+<!-- ── Controls: Search + Category Filter ─────────── -->
+<div class="blog-controls">
+  <div class="container">
+    <div class="blog-controls-inner">
+      <div class="blog-search-wrap">
+        <span>🔍</span>
+        <input type="text" id="blog-search" placeholder="Search posts..." autocomplete="off">
+      </div>
+      <span class="blog-result-count" id="blog-count"></span>
+    </div>
+    <div class="blog-filter-wrap">
+      <div class="blog-filter-tabs">
+        <button class="blog-filter-tab active" data-cat="" onclick="setCatFilter(this)">All Posts</button>
+        <button class="blog-filter-tab" data-cat="latest-news" onclick="setCatFilter(this)">📰 Latest News</button>
+        <button class="blog-filter-tab" data-cat="job-alerts-ayush" onclick="setCatFilter(this)">💼 Job Alerts (AYUSH)</button>
+        <button class="blog-filter-tab" data-cat="counselling-news" onclick="setCatFilter(this)">🏥 Counselling News</button>
+        <button class="blog-filter-tab" data-cat="aiapget-news" onclick="setCatFilter(this)">🎯 AIAPGET News</button>
+        <button class="blog-filter-tab" data-cat="traditional-knowledge" onclick="setCatFilter(this)">📜 Traditional Knowledge</button>
+        <button class="blog-filter-tab" data-cat="ayush-courses" onclick="setCatFilter(this)">📚 AYUSH Courses</button>
+        <button class="blog-filter-tab" data-cat="bams" onclick="setCatFilter(this)">📗 BAMS</button>
+        <button class="blog-filter-tab" data-cat="ncism" onclick="setCatFilter(this)">📋 NCISM</button>
+        <button class="blog-filter-tab" data-cat="samhita" onclick="setCatFilter(this)">📜 Samhita</button>
+        <button class="blog-filter-tab" data-cat="aiapget" onclick="setCatFilter(this)">🏆 AIAPGET</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Posts Grid ─────────────────────────────────── -->
+<div class="blog-grid-section">
+  <div class="container">
+    <div class="posts-grid posts-grid-fw" id="blog-posts-grid">
+      <div style="grid-column:1/-1" class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-bottom">
+    <div class="container">
+      © 2025 Ayurved Studies. All rights reserved.
+      · <a href="/privacy-policy/" style="color:inherit;text-decoration:underline">Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/blog.js"></script>
+</body>
+</html>

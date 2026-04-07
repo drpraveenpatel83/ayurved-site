@@ -2,9 +2,11 @@
    admin.js — Full Admin Panel Logic
    ============================================================ */
 
-let quillEditor = null;
-let allCategories = [];
-let currentPage = { questions: 1, notes: 1 };
+let quillEditor     = null;
+let postQuillEditor = null;
+let allCategories   = [];
+let currentPage     = { questions: 1, notes: 1, posts: 1 };
+let postsTotal      = 0;
 
 // ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,12 +75,14 @@ function showPanel(name) {
   if (navLink) navLink.classList.add('active');
 
   const titles = {
-    dashboard:'Dashboard', questions:'Questions', 'daily-quiz':'Daily Quiz',
-    notes:'Notes & Syllabus', categories:'Categories', banners:'Banners'
+    dashboard:'Dashboard', posts:'Blog Posts', questions:'Questions',
+    'daily-quiz':'Daily Quiz', notes:'Notes & Syllabus',
+    categories:'Categories', banners:'Banners'
   };
   document.getElementById('panel-title').textContent = titles[name] || name;
 
   // Lazy load
+  if (name === 'posts')      loadPosts();
   if (name === 'notes')      loadNotesList();
   if (name === 'categories') loadCategoriesList();
   if (name === 'banners')    loadBannersList();
@@ -522,28 +526,89 @@ async function loadBannersList() {
   }
   container.innerHTML = res.data.map((b, i) => `
     <div style="display:flex;align-items:center;gap:16px;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;background:white">
-      <img src="${b.image_url}" alt="" style="width:80px;height:50px;object-fit:cover;border-radius:6px;background:#ddd" onerror="this.style.background='#ddd'">
-      <div style="flex:1">
-        <div style="font-weight:600">${escHtml(b.title||'(no title)')}</div>
-        <div style="font-size:0.8rem;color:#7F8C8D">${escHtml(b.subtitle||'')}</div>
+      <div style="width:140px;height:52px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#f0f4f8">
+        ${b.image_url ? `<img src="${escHtml(b.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.background='#ddd'">` : '<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem">🖼</div>'}
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn-admin btn-admin-outline btn-admin-sm" onclick='editBanner(${JSON.stringify(b).replace(/'/g,"&#39;")})'>✏️</button>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(b.image_url || '(no image)')}</div>
+        <div style="font-size:0.78rem;color:#7F8C8D;margin-top:2px">${b.link_url ? '🔗 ' + escHtml(b.link_url) : 'No link'}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn-admin btn-admin-outline btn-admin-sm" onclick='editBanner(${JSON.stringify(b).replace(/'/g,"&#39;")})'>✏️ Edit</button>
         <button class="btn-admin btn-admin-red btn-admin-sm" onclick="deleteBanner(${b.id})">🗑</button>
       </div>
     </div>`).join('');
 }
 
 function openBannerModal(data = null) {
-  document.getElementById('bf-id').value       = data?.id || '';
-  document.getElementById('bf-img').value      = data?.image_url || '';
-  document.getElementById('bf-title').value    = data?.title || '';
-  document.getElementById('bf-subtitle').value = data?.subtitle || '';
-  document.getElementById('bf-link').value     = data?.link_url || '';
-  document.getElementById('bf-color').value    = data?.color || '#E67E22';
+  document.getElementById('banner-modal-title').textContent = data ? 'Edit Banner' : 'Add Banner';
+  document.getElementById('bf-id').value    = data?.id || '';
+  document.getElementById('bf-img').value   = data?.image_url || '';
+  document.getElementById('bf-link').value  = data?.link_url || '';
+  document.getElementById('bf-color').value = data?.color || '#1a6e3c';
+  // Update preview
+  previewBannerUrl(data?.image_url || '');
+  document.getElementById('bf-upload-status').textContent = '';
   openModal('banner-modal');
 }
 function editBanner(b) { openBannerModal(b); }
+
+// Show preview when URL is typed manually
+function previewBannerUrl(url) {
+  const preview = document.getElementById('bf-img-preview');
+  const label   = document.getElementById('bf-preview-label');
+  if (!preview) return;
+  if (url) {
+    preview.style.background = '';
+    preview.innerHTML = `<img src="${url}" alt="Preview" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=color:#e74c3c;font-size:0.82rem>Image not found</span>'">`;
+  } else {
+    preview.style.background = '#f0f4f8';
+    preview.innerHTML = '<span style="color:#95a5a6;font-size:0.82rem" id="bf-preview-label">No image selected</span>';
+  }
+}
+
+// Upload image file to server
+async function uploadBannerImage(input) {
+  const file   = input.files[0];
+  const status = document.getElementById('bf-upload-status');
+  const btn    = document.getElementById('bf-upload-btn');
+  if (!file) return;
+
+  status.style.color = '#7F8C8D';
+  status.textContent = '⏳ Uploading...';
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+
+  const formData = new FormData();
+  formData.append('image', file);
+  const token = Auth.getToken();
+
+  try {
+    const res = await fetch(`${API_BASE}/admin/upload.php`, {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: formData
+    }).then(r => r.json());
+
+    if (res.success) {
+      const url = res.data.url;
+      document.getElementById('bf-img').value = url;
+      previewBannerUrl(url);
+      status.style.color = '#27AE60';
+      status.textContent = '✅ Image uploaded successfully!';
+    } else {
+      status.style.color = '#E74C3C';
+      status.textContent = '❌ ' + (res.message || 'Upload failed');
+    }
+  } catch {
+    status.style.color = '#E74C3C';
+    status.textContent = '❌ Upload error. Check your connection.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📤 Upload Image';
+    input.value = '';
+  }
+}
 
 async function saveBanner(e) {
   e.preventDefault();
@@ -583,7 +648,7 @@ function closeModal(id) {
 
 // Close modal on backdrop click
 document.addEventListener('click', e => {
-  ['q-modal','notes-modal','cat-modal','banner-modal'].forEach(id => {
+  ['q-modal','notes-modal','cat-modal','banner-modal','post-modal'].forEach(id => {
     const m = document.getElementById(id);
     if (m && e.target === m) closeModal(id);
   });
@@ -597,4 +662,317 @@ function escHtml(str) {
 function debounce(fn, delay) {
   let t;
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+}
+
+// ── Blog Posts ────────────────────────────────────────────────
+const POSTS_LIMIT = 20;
+
+async function loadPosts(page = 1) {
+  currentPage.posts = page;
+  const tbody = document.getElementById('posts-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px">Loading...</td></tr>';
+
+  const search = document.getElementById('posts-search')?.value.trim() || '';
+  const cat    = document.getElementById('posts-cat-filter')?.value.trim() || '';
+  const offset = (page - 1) * POSTS_LIMIT;
+
+  let url = `admin/posts/list.php?limit=${POSTS_LIMIT}&offset=${offset}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (cat)    url += `&category=${encodeURIComponent(cat)}`;
+
+  const res = await apiGet(url);
+  if (!res.success) {
+    tbody.innerHTML = '<tr><td colspan="8" style="color:red;text-align:center;padding:16px">Load error</td></tr>';
+    return;
+  }
+
+  const { posts = [], total = 0 } = res.data;
+  postsTotal = total;
+
+  if (!posts.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;opacity:.6">Koi post nahi mili</td></tr>';
+    renderPostsPagination(total, page);
+    return;
+  }
+
+  tbody.innerHTML = posts.map((p, i) => `
+    <tr>
+      <td>${offset + i + 1}</td>
+      <td style="max-width:280px">
+        <div style="font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.title)}</div>
+        <div style="font-size:0.72rem;color:#888;font-family:monospace">/${escHtml(p.slug)}/</div>
+      </td>
+      <td>${p.category ? `<span style="background:#f0faf5;border:1px solid #c3e6d0;padding:2px 8px;border-radius:4px;font-size:0.75rem">${escHtml(p.category)}</span>` : '-'}</td>
+      <td>${escHtml(p.author||'Admin')}</td>
+      <td style="font-size:0.8rem;white-space:nowrap">${p.published_at ? p.published_at.slice(0,10) : '-'}</td>
+      <td>${p.view_count||0}</td>
+      <td>${p.is_published ? '<span style="color:green;font-weight:700">✓ Live</span>' : '<span style="color:#999">Draft</span>'}</td>
+      <td style="white-space:nowrap">
+        <button onclick="editPost(${p.id},'${escHtml(p.slug)}')" class="btn-admin btn-admin-outline" style="padding:4px 10px;font-size:0.75rem">Edit</button>
+        <a href="/${escHtml(p.slug)}/" target="_blank" class="btn-admin btn-admin-outline" style="padding:4px 10px;font-size:0.75rem;margin-left:4px">View</a>
+        <button onclick="deletePost(${p.id},'${escHtml(p.title).replace(/'/g,"\\'")}')" class="btn-admin" style="background:#fef2f2;color:#e74c3c;border:1px solid #fecaca;padding:4px 10px;font-size:0.75rem;border-radius:4px;margin-left:4px">Del</button>
+      </td>
+    </tr>`).join('');
+
+  renderPostsPagination(total, page);
+}
+
+function renderPostsPagination(total, page) {
+  const wrap = document.getElementById('posts-pagination');
+  if (!wrap) return;
+  const pages = Math.ceil(total / POSTS_LIMIT);
+  if (pages <= 1) { wrap.innerHTML = `<small style="opacity:.6">${total} posts</small>`; return; }
+
+  let html = `<small style="opacity:.6">${total} posts</small> &nbsp; `;
+  for (let i = 1; i <= pages; i++) {
+    html += `<button onclick="loadPosts(${i})" style="margin:2px;padding:4px 10px;border-radius:4px;border:1px solid #ddd;background:${i===page?'#1a6e3c':'#fff'};color:${i===page?'#fff':'#333'};cursor:pointer;font-size:0.8rem">${i}</button>`;
+  }
+  wrap.innerHTML = html;
+}
+
+let postEditorInited = false;
+
+function openPostModal(data = null) {
+  const form = document.getElementById('post-form');
+  form.reset();
+  document.getElementById('pf-id').value          = data?.id || '';
+  document.getElementById('pf-title').value        = data?.title || '';
+  document.getElementById('pf-slug').value         = data?.slug || '';
+  document.getElementById('pf-category').value     = data?.category || '';
+  document.getElementById('pf-category-slug').value= data?.category_slug || '';
+  document.getElementById('pf-author').value       = data?.author || 'Admin';
+  document.getElementById('pf-excerpt').value      = data?.excerpt || '';
+  document.getElementById('pf-thumbnail').value    = data?.thumbnail || '';
+  document.getElementById('pf-published').checked  = data ? !!data.is_published : true;
+  document.getElementById('pf-featured').checked   = !!data?.is_featured;
+
+  // published_at datetime-local format
+  if (data?.published_at) {
+    document.getElementById('pf-published-at').value = data.published_at.slice(0,16);
+  } else {
+    document.getElementById('pf-published-at').value = new Date().toISOString().slice(0,16);
+  }
+
+  document.getElementById('post-modal-title').textContent = data ? 'Edit Post' : 'New Post';
+
+  // Thumbnail preview
+  previewPostThumb(data?.thumbnail || '');
+
+  // Excerpt count
+  updateExcerptCount();
+
+  // Category dropdown — try to match existing slug, else show custom
+  const catSel = document.getElementById('pf-cat-select');
+  const customRow = document.getElementById('pf-cat-custom-row');
+  if (catSel) {
+    const existingSlug = data?.category_slug || '';
+    if (!existingSlug) {
+      catSel.value = '';
+      customRow && (customRow.style.display = 'none');
+    } else if (POST_CATEGORIES[existingSlug] !== undefined) {
+      catSel.value = existingSlug;
+      customRow && (customRow.style.display = 'none');
+    } else {
+      catSel.value = '__custom__';
+      customRow && (customRow.style.display = 'flex');
+    }
+  }
+
+  // Reset slug manual flag for new posts
+  const slugEl = document.getElementById('pf-slug');
+  if (slugEl) slugEl.dataset.manual = data ? '1' : '';
+
+  // Init post Quill editor
+  if (!postEditorInited) {
+    postQuillEditor = new Quill('#post-editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ color: [] }, { background: [] }],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['blockquote', 'link', 'image'],
+          ['clean']
+        ]
+      }
+    });
+    postEditorInited = true;
+  }
+  postQuillEditor.root.innerHTML = data?.content || '';
+
+  openModal('post-modal');
+}
+
+async function editPost(id, slug) {
+  const res = await apiGet(`public/posts.php?slug=${encodeURIComponent(slug)}`);
+  if (res.success) {
+    openPostModal(res.data);
+  } else {
+    Toast.error('Post load nahi hua');
+  }
+}
+
+async function savePost(e) {
+  e.preventDefault();
+  const btn = document.getElementById('post-save-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  // Get content from Quill
+  const content = postQuillEditor ? postQuillEditor.root.innerHTML : '';
+  document.getElementById('pf-content').value = content;
+
+  const payload = {
+    id:            document.getElementById('pf-id').value || null,
+    title:         document.getElementById('pf-title').value,
+    slug:          document.getElementById('pf-slug').value,
+    category:      document.getElementById('pf-category').value,
+    category_slug: document.getElementById('pf-category-slug').value,
+    author:        document.getElementById('pf-author').value,
+    excerpt:       document.getElementById('pf-excerpt').value,
+    thumbnail:     document.getElementById('pf-thumbnail').value,
+    content,
+    is_published:  document.getElementById('pf-published').checked ? 1 : 0,
+    is_featured:   document.getElementById('pf-featured').checked  ? 1 : 0,
+    published_at:  document.getElementById('pf-published-at').value || null,
+  };
+
+  const res = await apiPost('admin/posts/save.php', payload);
+  btn.textContent = 'Save Post'; btn.disabled = false;
+
+  if (res.success) {
+    Toast.success(`Post ${res.data.action}! Slug: /${res.data.slug}/`);
+    closeModal('post-modal');
+    loadPosts(currentPage.posts);
+  } else {
+    Toast.error(res.message || 'Save failed');
+  }
+}
+
+async function deletePost(id, title) {
+  if (!confirm(`"${title}" delete karna chahte hain?\n\nYeh action undo nahi hoga.`)) return;
+  const res = await apiDelete('admin/posts/delete.php', { id });
+  if (res.success) { Toast.success('Post deleted'); loadPosts(currentPage.posts); }
+  else Toast.error(res.message);
+}
+
+// Auto-generate slug from title
+function autoSlug() {
+  const slugEl = document.getElementById('pf-slug');
+  if (slugEl.dataset.manual) return; // user manually typed slug
+  const title = document.getElementById('pf-title').value;
+  slugEl.value = makeAdminSlug(title);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('pf-slug')?.addEventListener('input', function() {
+    this.dataset.manual = this.value ? '1' : '';
+  });
+});
+
+// Auto-generate category slug from category name
+function autoCatSlug() {
+  const catSlugEl = document.getElementById('pf-category-slug');
+  const catEl     = document.getElementById('pf-category');
+  catSlugEl.value = makeAdminSlug(catEl.value);
+}
+
+function makeAdminSlug(str) {
+  return str.toLowerCase().trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// ── Post Thumbnail Upload / Preview ───────────────────────────
+async function uploadPostThumb(input) {
+  const file   = input.files[0];
+  const status = document.getElementById('pf-thumb-status');
+  if (!file) return;
+
+  status.textContent = 'Uploading...';
+  status.style.color = '#555';
+
+  const fd = new FormData();
+  fd.append('image', file);
+
+  try {
+    const token = Auth.getToken();
+    const res = await fetch(`${API_BASE}/admin/upload.php`, {
+      method:  'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body:    fd
+    });
+    const json = await res.json();
+    if (json.success) {
+      document.getElementById('pf-thumbnail').value = json.data.url;
+      previewPostThumb(json.data.url);
+      status.textContent = '✓ Uploaded';
+      status.style.color = '#27ae60';
+    } else {
+      status.textContent = '✗ ' + (json.message || 'Upload failed');
+      status.style.color = '#e74c3c';
+    }
+  } catch (err) {
+    status.textContent = '✗ Network error';
+    status.style.color = '#e74c3c';
+  }
+}
+
+function previewPostThumb(url) {
+  const preview = document.getElementById('pf-thumb-preview');
+  if (!preview) return;
+  if (url && url.trim()) {
+    preview.innerHTML = `<img src="${url}" alt="Thumbnail" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+  } else {
+    preview.innerHTML = '<span style="color:#aaa;font-size:0.85rem">No thumbnail</span>';
+  }
+}
+
+// ── Excerpt Character Counter ──────────────────────────────────
+function updateExcerptCount() {
+  const el    = document.getElementById('pf-excerpt');
+  const count = document.getElementById('pf-excerpt-count');
+  if (!el || !count) return;
+  const len = el.value.length;
+  count.textContent = len + '/300';
+  count.style.color = len > 300 ? '#e74c3c' : len > 250 ? '#e67e22' : '#888';
+}
+
+// ── Category Dropdown Handler ──────────────────────────────────
+const POST_CATEGORIES = {
+  'latest-news':         'Latest News',
+  'job-alerts-ayush':    'Job Alerts (AYUSH)',
+  'counselling-news':    'Counselling News',
+  'aiapget-news':        'AIAPGET News',
+  'traditional-knowledge':'Traditional Knowledge',
+  'ayush-courses':       'AYUSH Courses',
+  'bams':                'BAMS',
+  'ncism':               'NCISM',
+  'samhita':             'Samhita',
+  'aiapget':             'AIAPGET',
+  'study-material':      'Study Material',
+  'anatomy':             'Anatomy',
+  'dravyaguna':          'Dravyaguna',
+};
+
+function onPostCatSelect() {
+  const sel      = document.getElementById('pf-cat-select');
+  const catEl    = document.getElementById('pf-category');
+  const slugEl   = document.getElementById('pf-category-slug');
+  const customRow= document.getElementById('pf-cat-custom-row');
+
+  if (sel.value === '__custom__') {
+    customRow && (customRow.style.display = 'flex');
+    catEl.value  = '';
+    slugEl.value = '';
+  } else if (sel.value) {
+    customRow && (customRow.style.display = 'none');
+    slugEl.value = sel.value;
+    catEl.value  = POST_CATEGORIES[sel.value] || sel.value;
+  } else {
+    customRow && (customRow.style.display = 'none');
+    catEl.value  = '';
+    slugEl.value = '';
+  }
 }
