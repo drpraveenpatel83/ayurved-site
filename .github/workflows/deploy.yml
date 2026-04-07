@@ -26,7 +26,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps        # Hostinger FTPS support karta hai — zyada reliable
           port: 21
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}   # hPanel se sahi path Secret mein daal do
+          server-dir: public_html/
           local-dir: ./
           timeout: 120000
           log-level: standard
