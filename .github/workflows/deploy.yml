@@ -18,12 +18,12 @@ jobs:
 
       # Step 2: FTP se Hostinger pe deploy karo
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/
+          server-dir: test-site/
           protocol: ftp
           port: 21
           # Yeh files KABHI upload mat karo:
