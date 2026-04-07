@@ -178,15 +178,21 @@ function _newsCardHtml(p, index) {
   const newBadge  = index < 2 ? '<span class="badge-new">🔴 New</span>' : '';
   const mustBadge = p.featured ? '<span class="badge-must">📋 Must Read</span>' : '';
   const catBadge  = p.category ? `<span class="news-card-cat-badge">${esc(p.category)}</span>` : '';
+  const imgHtml   = p.image_url
+    ? `<div class="news-card-img"><img src="${esc(p.image_url)}" alt="${esc(p.title)}" loading="lazy"></div>`
+    : '';
 
   return `
-    <a href="/${esc(p.slug)}/" class="news-card">
-      <div class="news-card-top">
-        <div class="news-card-badges">${catBadge}${newBadge}${mustBadge}</div>
-        <span class="news-card-arrow">→</span>
+    <a href="/${esc(p.slug)}/" class="news-card${p.image_url ? ' has-img' : ''}">
+      ${imgHtml}
+      <div class="news-card-body">
+        <div class="news-card-top">
+          <div class="news-card-badges">${catBadge}${newBadge}${mustBadge}</div>
+          <span class="news-card-arrow">→</span>
+        </div>
+        <span class="news-card-title">${esc(p.title)}</span>
+        <div class="news-card-meta">${fmtDate(p.published_at)} · By ${esc(p.author || 'Admin')}</div>
       </div>
-      <span class="news-card-title">${esc(p.title)}</span>
-      <div class="news-card-meta">${fmtDate(p.published_at)} · By ${esc(p.author || 'Admin')}</div>
     </a>`;
 }
 

@@ -81,19 +81,10 @@ const Toast = (() => {
 
 // ── Navbar ─────────────────────────────────────────────────────
 function initNavbar() {
-  const burger = document.getElementById('nav-burger');
-  const menu   = document.getElementById('nav-menu');
   const loginBtn  = document.getElementById('nav-login-btn');
   const userBtn   = document.getElementById('nav-user-btn');
   const userName  = document.getElementById('nav-user-name');
   const logoutBtn = document.getElementById('nav-logout-btn');
-
-  if (burger && menu) {
-    burger.addEventListener('click', () => menu.classList.toggle('open'));
-    document.addEventListener('click', (e) => {
-      if (!burger.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
-    });
-  }
 
   // Highlight active nav link
   const links = document.querySelectorAll('.navbar-menu a');
