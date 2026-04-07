@@ -1,97 +1,351 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Profile | Ayurveda Quiz</title>
+  <title>My Profile | Ayurved Studies</title>
+  <meta name="robots" content="noindex">
   <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── Profile Page Styles ── */
+    .profile-hero{background:linear-gradient(135deg,#1a6e3c 0%,#0d4a28 100%);padding:36px 0 80px;color:#fff;position:relative;overflow:hidden}
+    .profile-hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:48px;background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%)}
+    .profile-hero-inner{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+    .profile-avatar{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:800;color:#fff;flex-shrink:0;text-transform:uppercase}
+    .profile-hero-info{flex:1;min-width:0}
+    .profile-hero-name{font-size:1.5rem;font-weight:800;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .profile-hero-email{font-size:0.85rem;opacity:.75;margin-bottom:10px;word-break:break-word}
+    .profile-hero-badges{display:flex;gap:8px;flex-wrap:wrap}
+    .membership-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+    .membership-badge.free{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff}
+    .membership-badge.premium{background:#E67E22;color:#fff}
+    .profile-hero-actions{display:flex;gap:8px;flex-shrink:0}
+    .btn-ghost{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);color:#fff;padding:8px 18px;border-radius:var(--radius-sm);font-size:0.84rem;font-weight:600;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .btn-ghost:hover{background:rgba(255,255,255,.22);color:#fff}
+
+    /* Stats */
+    .profile-stats-wrap{margin-top:-44px;position:relative;z-index:2;padding-bottom:8px}
+    .profile-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .stat-card{background:#fff;border-radius:var(--radius);padding:18px 16px;box-shadow:0 4px 20px rgba(0,0,0,.08);text-align:center;border:1px solid var(--border)}
+    .stat-icon{font-size:1.6rem;margin-bottom:6px}
+    .stat-value{font-size:1.5rem;font-weight:800;color:var(--primary);line-height:1.1;margin-bottom:3px}
+    .stat-label{font-size:0.72rem;color:var(--text-mid);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+
+    /* Tabs */
+    .profile-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px}
+    .profile-tab{background:none;border:none;border-bottom:3px solid transparent;padding:10px 20px;font-size:0.88rem;font-weight:600;color:var(--text-mid);cursor:pointer;margin-bottom:-2px;transition:.18s;font-family:var(--font)}
+    .profile-tab:hover{color:var(--primary)}
+    .profile-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+    /* History cards */
+    .history-list{display:flex;flex-direction:column;gap:10px}
+    .history-card{background:#fff;border-radius:var(--radius);padding:14px 16px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;transition:.2s;text-decoration:none;color:var(--text)}
+    .history-card:hover{box-shadow:var(--shadow-lg);border-color:#cdd5df;transform:translateX(2px)}
+    .history-score-circle{width:52px;height:52px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;font-size:0.82rem;line-height:1.1}
+    .history-score-circle.good{background:#e8f5ee;color:#1a6e3c}
+    .history-score-circle.avg{background:#fff8e8;color:#b8620a}
+    .history-score-circle.low{background:#fdecea;color:#c0392b}
+    .history-score-num{font-size:1rem;font-weight:800}
+    .history-body{flex:1;min-width:0}
+    .history-title{font-size:0.88rem;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .history-meta{font-size:0.75rem;color:var(--text-light);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .history-meta-tag{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 7px;font-size:0.7rem;font-weight:600;color:var(--text-mid)}
+    .history-arrow{color:var(--text-light);font-size:1.1rem;flex-shrink:0;transition:.18s}
+    .history-card:hover .history-arrow{color:var(--primary);transform:translateX(3px)}
+
+    /* Empty state */
+    .profile-empty{text-align:center;padding:60px 20px;color:var(--text-mid)}
+    .profile-empty .empty-icon{font-size:3rem;margin-bottom:14px}
+    .profile-empty h3{font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+    .profile-empty p{font-size:0.85rem;margin-bottom:20px}
+
+    /* Score bar */
+    .score-bar-wrap{margin-top:4px}
+    .score-bar{height:4px;background:#e8ecef;border-radius:2px;overflow:hidden}
+    .score-bar-fill{height:100%;border-radius:2px;transition:width .6s ease}
+
+    @media(max-width:640px){
+      .profile-stats{grid-template-columns:repeat(2,1fr)}
+      .profile-hero-inner{gap:16px}
+      .profile-avatar{width:64px;height:64px;font-size:1.7rem}
+      .profile-hero-name{font-size:1.2rem}
+      .profile-tab{padding:8px 14px;font-size:0.82rem}
+    }
+  </style>
 </head>
 <body>
 
+<!-- ── Navbar ── -->
 <nav class="navbar">
-  <div class="container navbar-inner">
-    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
-    <div class="navbar-menu" id="nav-menu">
-      <a href="/">Home</a><a href="/pages/bams.html?year=1">BAMS</a>
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/assets/img/logo.png" alt="Ayurved Studies" class="nav-brand-logo">
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
+      </div>
+    </a>
+    <div class="nav-menu" id="nav-menu">
+      <a href="/">Home</a>
+      <div class="nav-dropdown">
+        <a href="/category/bams" class="nav-dropdown-trigger" role="button">BAMS <span class="nav-caret">▾</span></a>
+        <div class="nav-dropdown-menu">
+          <a href="/category/bams-1st-year">📚 1st Year</a>
+          <a href="/category/bams-2nd-year">📗 2nd Year</a>
+          <a href="/category/bams-3rd-year">📘 3rd Year</a>
+          <div class="nav-dd-divider"></div>
+          <a href="/category/aiapget">🎯 AIAPGET</a>
+          <a href="/category/ncism">📋 NCISM</a>
+        </div>
+      </div>
+      <a href="/blog-post/">Blog Posts</a>
+      <a href="/pages/quiz.html">Quiz <span class="new-badge">New</span></a>
+      <a href="/pages/login.html" class="nav-mobile-login">Login / Register</a>
     </div>
-    <div class="navbar-actions">
+    <div class="nav-actions">
+      <div id="nav-login-btn" class="hidden">
+        <a href="/pages/login.html" class="btn btn-primary btn-sm">Login</a>
+      </div>
       <div id="nav-user-btn">
-        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
-        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name"></span></a>
       </div>
     </div>
-    <button class="navbar-hamburger" id="nav-burger">☰</button>
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">☰</button>
   </div>
 </nav>
 
-<div class="page-header">
+<!-- ── Profile Hero ── -->
+<section class="profile-hero">
   <div class="container">
-    <h1>👤 My Profile</h1>
-    <p id="profile-subtitle">Loading...</p>
+    <div class="profile-hero-inner">
+      <div class="profile-avatar" id="profile-avatar">?</div>
+      <div class="profile-hero-info">
+        <div class="profile-hero-name" id="profile-name">Loading...</div>
+        <div class="profile-hero-email" id="profile-email"></div>
+        <div class="profile-hero-badges">
+          <span class="membership-badge free" id="profile-membership">Free Member</span>
+          <span class="membership-badge free" id="profile-joined" style="display:none"></span>
+        </div>
+      </div>
+      <div class="profile-hero-actions">
+        <button class="btn-ghost" onclick="Auth.logout()">Logout →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ── -->
+<div class="container profile-stats-wrap">
+  <div class="profile-stats" id="profile-stats">
+    <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-value" id="stat-total">—</div><div class="stat-label">Quizzes</div></div>
+    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="stat-avg">—</div><div class="stat-label">Avg Score</div></div>
+    <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="stat-best">—</div><div class="stat-label">Best Score</div></div>
+    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-value" id="stat-time">—</div><div class="stat-label">Time Spent</div></div>
   </div>
 </div>
 
-<div class="container section">
-  <div id="profile-main">
-    <div class="spinner-wrap"><div class="spinner"></div></div>
+<!-- ── Main Content ── -->
+<div class="container section" style="padding-top:28px;padding-bottom:48px">
+
+  <div class="profile-tabs">
+    <button class="profile-tab active" onclick="showTab('history', this)">📊 Quiz History</button>
+    <button class="profile-tab" onclick="showTab('account', this)">👤 Account</button>
   </div>
+
+  <!-- History Tab -->
+  <div id="tab-history">
+    <div id="history-list-wrap">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- Account Tab -->
+  <div id="tab-account" style="display:none">
+    <div style="max-width:480px">
+      <div class="card" style="background:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:20px;color:var(--text)">Account Details</h3>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:0.72rem;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Full Name</div>
+            <div style="font-size:0.95rem;font-weight:600;color:var(--text)" id="acc-name">—</div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:14px">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Email</div>
+            <div style="font-size:0.95rem;color:var(--text)" id="acc-email">—</div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:14px">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Membership</div>
+            <div style="font-size:0.95rem;font-weight:600;color:var(--primary)" id="acc-membership">Free</div>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+          <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red)" onclick="Auth.logout()">Logout from account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
+<!-- ── Footer ── -->
 <footer class="footer">
-  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+  <div class="container footer-top">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo-wrap">
+          <img src="/assets/img/logo.png" alt="Ayurved Studies" class="footer-logo">
+          <div class="site-name">Ayurved Studies</div>
+        </div>
+        <p>India's free Ayurveda education platform for BAMS, AIAPGET, NCISM and Govt Exams.</p>
+        <div class="footer-social">
+          <a href="#">▶ YouTube</a>
+          <a href="#">✈ Telegram</a>
+          <a href="#">📷 Instagram</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>BAMS</h4>
+        <a href="/category/bams-1st-year">1st Year</a>
+        <a href="/category/bams-2nd-year">2nd Year</a>
+        <a href="/category/bams-3rd-year">3rd Year</a>
+        <a href="/category/samhita">Samhita</a>
+      </div>
+      <div class="footer-col">
+        <h4>Exams</h4>
+        <a href="/category/aiapget">AIAPGET</a>
+        <a href="/category/govt-exam">Govt Exams</a>
+        <a href="/category/ncism">NCISM</a>
+        <a href="/pages/quiz.html">Daily Quiz</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="/pages/login.html">Login / Register</a>
+        <a href="/pages/profile.html">My Profile</a>
+        <a href="/privacy-policy/">Privacy Policy</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">© 2025 Ayurved Studies. All rights reserved.</div>
+  </div>
 </footer>
 
 <script src="/assets/js/app.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!Auth.isLoggedIn()) { window.location.href = '/pages/login.html'; return; }
+  if (!Auth.isLoggedIn()) {
+    window.location.href = '/pages/login.html';
+    return;
+  }
 
   const user = Auth.getUser();
-  document.getElementById('profile-subtitle').textContent = user.email;
 
-  const main = document.getElementById('profile-main');
+  // Fill hero
+  const initial = (user.name || 'U').charAt(0).toUpperCase();
+  document.getElementById('profile-avatar').textContent = initial;
+  document.getElementById('profile-name').textContent   = user.name || 'User';
+  document.getElementById('profile-email').textContent  = user.email || '';
 
-  // Load attempt history
-  const res = await apiGet('public/user-attempts.php?limit=20');
+  const memBadge = document.getElementById('profile-membership');
+  if (user.membership_type && user.membership_type !== 'free') {
+    memBadge.textContent = user.membership_type + ' Member';
+    memBadge.classList.replace('free', 'premium');
+  } else {
+    memBadge.textContent = 'Free Member';
+  }
 
-  main.innerHTML = `
-    <!-- User Info Card -->
-    <div class="card mb-3" style="display:flex;align-items:center;gap:16px">
-      <div style="width:56px;height:56px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:white;flex-shrink:0">
-        ${user.name?.charAt(0)?.toUpperCase()}
-      </div>
-      <div>
-        <div style="font-weight:700;font-size:1.1rem">${escHtml(user.name)}</div>
-        <div class="text-muted text-small">${escHtml(user.email)}</div>
-        <div class="mt-1"><span class="badge ${user.membership_type !== 'free' ? 'green' : ''}">${user.membership_type === 'free' ? 'Free Member' : user.membership_type + ' Member'}</span></div>
-      </div>
-      <div style="margin-left:auto">
-        <button class="btn btn-outline btn-sm" onclick="Auth.logout()">Logout</button>
-      </div>
-    </div>
+  // Account tab
+  document.getElementById('acc-name').textContent       = user.name || '—';
+  document.getElementById('acc-email').textContent      = user.email || '—';
+  document.getElementById('acc-membership').textContent = user.membership_type || 'Free';
 
-    <!-- Attempt History -->
-    <div class="section-title mb-2">📊 Quiz History</div>
-    ${res.success && res.data.length ? `
-    <div class="quiz-list">
-      ${res.data.map(a => `
-        <div class="quiz-list-item">
-          <div class="info">
-            <h4>${a.quiz_type.replace('_',' ').toUpperCase()} ${a.category_name ? '— ' + a.category_name : ''}</h4>
-            <p>${formatDate(a.completed_at)} · ${a.time_taken_secs ? Math.round(a.time_taken_secs/60) + ' min' : ''}</p>
-          </div>
-          <div class="meta">
-            <span class="badge ${a.score/a.total_questions >= 0.7 ? 'green' : a.score/a.total_questions >= 0.4 ? '' : 'red'}">
-              ${a.score}/${a.total_questions}
-            </span>
-            <a href="/pages/result.html?attempt=${a.id}" class="btn btn-outline btn-sm">View →</a>
-          </div>
-        </div>`).join('')}
-    </div>` : '<div class="empty-state"><div class="icon">📝</div><h3>Abhi tak koi quiz attempt nahi kiya</h3><a href="/" class="btn btn-primary mt-2">Quiz Start Karein</a></div>'}`;
+  // Load quiz history
+  await loadHistory();
 });
 
-function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+async function loadHistory() {
+  const wrap = document.getElementById('history-list-wrap');
+  wrap.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  try {
+    const res   = await apiGet('public/user-attempts.php?limit=50');
+    const data  = res?.data || [];
+
+    if (!data.length) {
+      wrap.innerHTML = `
+        <div class="profile-empty">
+          <div class="empty-icon">📝</div>
+          <h3>Abhi tak koi quiz attempt nahi kiya</h3>
+          <p>Practice karo aur apna score yahan track karo</p>
+          <a href="/pages/quiz.html" class="btn btn-primary">Quiz Start Karein →</a>
+        </div>`;
+      updateStats([]);
+      return;
+    }
+
+    updateStats(data);
+    wrap.innerHTML = `<div class="history-list">${data.map(a => historyCard(a)).join('')}</div>`;
+  } catch {
+    wrap.innerHTML = `<div class="profile-empty"><div class="empty-icon">⚠️</div><h3>Load nahi hua</h3><p>Page refresh karein</p></div>`;
+  }
+}
+
+function updateStats(data) {
+  const total = data.length;
+  const avgPct = total ? Math.round(data.reduce((s,a) => s + (a.score / a.total_questions * 100), 0) / total) : 0;
+  const best  = total ? Math.max(...data.map(a => Math.round(a.score / a.total_questions * 100))) : 0;
+  const mins  = total ? Math.round(data.reduce((s,a) => s + (a.time_taken_secs || 0), 0) / 60) : 0;
+
+  document.getElementById('stat-total').textContent = total || '0';
+  document.getElementById('stat-avg').textContent   = total ? avgPct + '%' : '—';
+  document.getElementById('stat-best').textContent  = total ? best + '%' : '—';
+  document.getElementById('stat-time').textContent  = mins >= 60 ? Math.round(mins/60) + 'h' : (mins || '—') + (mins ? 'm' : '');
+}
+
+function historyCard(a) {
+  const pct   = Math.round((a.score / a.total_questions) * 100);
+  const cls   = pct >= 70 ? 'good' : pct >= 40 ? 'avg' : 'low';
+  const label = a.quiz_type ? a.quiz_type.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : 'Quiz';
+  const cat   = a.category_name ? `<span class="history-meta-tag">${esc(a.category_name)}</span>` : '';
+  const time  = a.time_taken_secs ? `⏱ ${Math.round(a.time_taken_secs/60)}m` : '';
+  const date  = a.completed_at ? new Date(a.completed_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+  const barColor = pct >= 70 ? '#1a6e3c' : pct >= 40 ? '#E67E22' : '#e74c3c';
+
+  return `
+    <a href="/pages/result.html?attempt=${a.id}" class="history-card">
+      <div class="history-score-circle ${cls}">
+        <span class="history-score-num">${a.score}/${a.total_questions}</span>
+      </div>
+      <div class="history-body">
+        <div class="history-title">${esc(label)}</div>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+        </div>
+        <div class="history-meta" style="margin-top:5px">
+          ${cat}
+          <span>${date}</span>
+          ${time ? `<span>${time}</span>` : ''}
+          <span style="font-weight:700;color:${barColor}">${pct}%</span>
+        </div>
+      </div>
+      <div class="history-arrow">→</div>
+    </a>`;
+}
+
+function showTab(name, btn) {
+  document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-history').style.display = name === 'history' ? '' : 'none';
+  document.getElementById('tab-account').style.display = name === 'account' ? '' : 'none';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 </script>
 </body>
 </html>
