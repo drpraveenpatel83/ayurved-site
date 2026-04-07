@@ -1,220 +1,313 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subject | Ayurveda Quiz</title>
+  <title>Subject | Ayurved Studies</title>
   <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .subject-hero{background:linear-gradient(135deg,#1a6e3c 0%,#0d4a28 100%);color:#fff;padding:28px 0 20px}
+    .subject-hero h1{font-size:1.5rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+    .subject-hero-sub{font-size:0.82rem;opacity:.75}
+
+    .subject-tabs-bar{background:#fff;border-bottom:2px solid var(--border);position:sticky;top:62px;z-index:100}
+    .subject-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+    .subject-tabs::-webkit-scrollbar{display:none}
+    .subject-tab{background:none;border:none;border-bottom:3px solid transparent;padding:13px 20px;font-size:0.88rem;font-weight:700;color:var(--text-mid);cursor:pointer;white-space:nowrap;margin-bottom:-2px;transition:.18s;font-family:var(--font);display:flex;align-items:center;gap:6px}
+    .subject-tab:hover{color:var(--primary)}
+    .subject-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+    .tab-count{background:var(--primary);color:#fff;font-size:0.65rem;padding:1px 6px;border-radius:10px;font-weight:700}
+    .subject-tab.hidden{display:none}
+
+    .subject-content{padding:28px 0 56px;background:var(--bg);min-height:300px}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    /* Notes */
+    .notes-list{display:flex;flex-direction:column;gap:16px}
+    .note-card{background:#fff;border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid var(--primary)}
+    .note-card-title{font-size:1rem;font-weight:800;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .note-card-type{font-size:0.68rem;background:#e8f5ee;color:#1a6e3c;padding:2px 8px;border-radius:4px;font-weight:700;text-transform:uppercase}
+    .note-content{font-size:0.88rem;line-height:1.85;color:var(--text)}
+    .note-content h2,.note-content h3{color:var(--primary);margin:16px 0 8px}
+    .note-content ul,.note-content ol{padding-left:20px;margin:8px 0}
+    .note-content li{margin-bottom:4px}
+    .note-content table{width:100%;border-collapse:collapse;margin:12px 0;font-size:0.85rem}
+    .note-content th{background:var(--primary);color:#fff;padding:8px 10px;text-align:left}
+    .note-content td{padding:7px 10px;border:1px solid var(--border)}
+    .note-content tr:nth-child(even) td{background:#f8f9fa}
+
+    /* PDFs */
+    .pdf-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+    .pdf-card{background:#fff;border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;gap:14px;align-items:flex-start;text-decoration:none;color:var(--text);transition:.2s}
+    .pdf-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+    .pdf-icon{width:44px;height:44px;background:#fdecea;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+    .pdf-body{flex:1;min-width:0}
+    .pdf-title{font-size:0.88rem;font-weight:700;margin-bottom:4px;line-height:1.3}
+    .pdf-meta{font-size:0.72rem;color:var(--text-light);display:flex;align-items:center;gap:6px}
+    .pdf-type-tag{background:#fdecea;color:#c0392b;padding:2px 7px;border-radius:4px;font-size:0.66rem;font-weight:700;text-transform:uppercase}
+    .pdf-dl{font-size:0.78rem;font-weight:700;color:var(--primary);margin-top:6px;display:inline-flex;align-items:center;gap:4px}
+
+    /* Tests */
+    .tests-list{display:flex;flex-direction:column;gap:12px}
+    .test-card{background:#fff;border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:16px}
+    .test-card-icon{width:48px;height:48px;background:linear-gradient(135deg,#1a6e3c,#0d4a28);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+    .test-card-body{flex:1;min-width:0}
+    .test-card-title{font-size:0.92rem;font-weight:800;margin-bottom:4px;color:var(--text)}
+    .test-card-meta{font-size:0.75rem;color:var(--text-mid);display:flex;gap:10px;flex-wrap:wrap}
+    .test-card-meta span{display:flex;align-items:center;gap:3px}
+    .test-card-actions{flex-shrink:0}
+
+    .empty-tab{text-align:center;padding:48px 20px;color:var(--text-mid)}
+    .empty-tab .icon{font-size:2.5rem;margin-bottom:12px}
+    .empty-tab p{font-size:0.85rem}
+
+    @media(max-width:580px){
+      .pdf-list{grid-template-columns:1fr}
+      .test-card{flex-wrap:wrap}
+      .subject-hero h1{font-size:1.2rem}
+    }
+  </style>
 </head>
 <body>
 
 <nav class="navbar">
-  <div class="container navbar-inner">
-    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
-    <div class="navbar-menu" id="nav-menu">
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/assets/img/logo.png" alt="Ayurved Studies" class="nav-brand-logo">
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
+      </div>
+    </a>
+    <div class="nav-menu" id="nav-menu">
       <a href="/">Home</a>
-      <a href="/pages/bams.html?year=1">BAMS</a>
-      <a href="/pages/aiapget.html">AIAPGET</a>
-      <a href="/pages/samhita.html">Samhita</a>
+      <div class="nav-dropdown">
+        <a href="/pages/bams.html" class="nav-dropdown-trigger">BAMS <span class="nav-caret">▾</span></a>
+        <div class="nav-dropdown-menu">
+          <a href="/pages/bams.html?prof=bams-1st-prof">📚 1st Prof</a>
+          <a href="/pages/bams.html?prof=bams-2nd-prof">📗 2nd Prof</a>
+          <a href="/pages/bams.html?prof=bams-3rd-prof">📘 3rd Prof</a>
+          <div class="nav-dd-divider"></div>
+          <a href="/pages/bams.html?prof=aiapget">🎯 AIAPGET</a>
+          <a href="/pages/bams.html?prof=ncism">📋 NCISM</a>
+        </div>
+      </div>
+      <a href="/blog-post/">Blog Posts</a>
+      <a href="/pages/quiz.html">Quiz <span class="new-badge">New</span></a>
+      <a href="/pages/login.html" class="nav-mobile-login">Login / Register</a>
     </div>
-    <div class="navbar-actions">
-      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+    <div class="nav-actions">
+      <div id="nav-login-btn"><a href="/pages/login.html" class="btn btn-primary btn-sm">Login</a></div>
       <div class="hidden" id="nav-user-btn">
-        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
-        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name"></span></a>
       </div>
     </div>
-    <button class="navbar-hamburger" id="nav-burger">☰</button>
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">☰</button>
   </div>
 </nav>
 
-<div class="page-header">
+<!-- Hero -->
+<section class="subject-hero">
   <div class="container">
-    <div class="breadcrumb" id="breadcrumb">
-      <a href="/">Home</a><span>›</span><span>Subject</span>
+    <div style="font-size:0.78rem;opacity:.7;margin-bottom:10px" id="breadcrumb-wrap">
+      <a href="/" style="color:rgba(255,255,255,.75)">Home</a>
+      <span style="margin:0 6px">›</span>
+      <a href="/pages/bams.html" style="color:rgba(255,255,255,.75)" id="bc-parent">BAMS</a>
+      <span style="margin:0 6px">›</span>
+      <span id="bc-subject">Subject</span>
     </div>
-    <h1 id="subject-name">Loading...</h1>
-    <p id="subject-meta" class="text-small" style="opacity:0.85"></p>
+    <h1 id="subject-title"><span id="subject-icon">📚</span> <span id="subject-name">Loading...</span></h1>
+    <p class="subject-hero-sub" id="subject-parent-name"></p>
+  </div>
+</section>
+
+<!-- Tabs -->
+<div class="subject-tabs-bar">
+  <div class="container">
+    <div class="subject-tabs">
+      <button class="subject-tab active" id="tab-notes-btn" onclick="showTab('notes')">📝 Notes</button>
+      <button class="subject-tab" id="tab-pdf-btn" onclick="showTab('pdf')">📄 NCISM Syllabus / PDF</button>
+      <button class="subject-tab" id="tab-tests-btn" onclick="showTab('tests')">🎯 Tests</button>
+    </div>
   </div>
 </div>
 
-<div class="container section">
-  <!-- Dynamic Tabs: Quiz always shown. Syllabus/Notes only if content exists -->
-  <div class="tabs" id="subject-tabs">
-    <button class="tab-btn active" id="tab-quiz" onclick="showTab('quiz')">📝 Quiz</button>
-    <button class="tab-btn hidden" id="tab-syllabus" onclick="showTab('syllabus')">📋 Syllabus</button>
-    <button class="tab-btn hidden" id="tab-notes" onclick="showTab('notes')">📖 Short Notes</button>
-  </div>
+<!-- Content -->
+<div class="subject-content">
+  <div class="container">
 
-  <!-- Quiz Tab -->
-  <div class="tab-panel active" id="panel-quiz">
-    <div id="quiz-list">
-      <div class="spinner-wrap"><div class="spinner"></div></div>
+    <!-- Notes Tab -->
+    <div class="tab-panel active" id="panel-notes">
+      <div id="notes-wrap"><div class="spinner-wrap"><div class="spinner"></div></div></div>
     </div>
-  </div>
 
-  <!-- Syllabus Tab -->
-  <div class="tab-panel" id="panel-syllabus">
-    <div class="card">
-      <div class="notes-content" id="syllabus-content">
-        <div class="spinner-wrap"><div class="spinner"></div></div>
-      </div>
+    <!-- PDF Tab -->
+    <div class="tab-panel" id="panel-pdf">
+      <div id="pdf-wrap"><div class="spinner-wrap"><div class="spinner"></div></div></div>
     </div>
-  </div>
 
-  <!-- Notes Tab -->
-  <div class="tab-panel" id="panel-notes">
-    <div id="notes-list">
-      <div class="spinner-wrap"><div class="spinner"></div></div>
+    <!-- Tests Tab -->
+    <div class="tab-panel" id="panel-tests">
+      <div id="tests-wrap"><div class="spinner-wrap"><div class="spinner"></div></div></div>
     </div>
+
   </div>
 </div>
 
 <footer class="footer">
-  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
+  <div class="container footer-top">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo-wrap">
+          <img src="/assets/img/logo.png" alt="Ayurved Studies" class="footer-logo">
+          <div class="site-name">Ayurved Studies</div>
+        </div>
+        <p>India's free Ayurveda education platform.</p>
+        <div class="footer-social">
+          <a href="#">▶ YouTube</a><a href="#">✈ Telegram</a><a href="#">📷 Instagram</a>
+        </div>
+      </div>
+      <div class="footer-col"><h4>BAMS</h4>
+        <a href="/pages/bams.html?prof=bams-1st-prof">1st Prof</a>
+        <a href="/pages/bams.html?prof=bams-2nd-prof">2nd Prof</a>
+        <a href="/pages/bams.html?prof=bams-3rd-prof">3rd Prof</a>
+      </div>
+      <div class="footer-col"><h4>Exams</h4>
+        <a href="/pages/bams.html?prof=aiapget">AIAPGET</a>
+        <a href="/pages/bams.html?prof=govt-exam">Govt Exams</a>
+        <a href="/pages/bams.html?prof=ncism">NCISM</a>
+      </div>
+      <div class="footer-col"><h4>Info</h4>
+        <a href="/pages/login.html">Login / Register</a>
+        <a href="/pages/profile.html">My Profile</a>
+        <a href="/privacy-policy/">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom"><div class="container">© 2025 Ayurved Studies. All rights reserved.</div></div>
 </footer>
 
 <script src="/assets/js/app.js"></script>
 <script>
-const catId = parseInt(Params.get('id'));
-let subjectData = null;
-let notesLoaded = false, syllabusLoaded = false;
+const slug = new URLSearchParams(location.search).get('slug') || '';
+let _data = null;
+let _loaded = { notes: false, pdf: false, tests: false };
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!catId) { window.location.href = '/'; return; }
-  await loadSubjectInfo();
-  loadQuizzes();
+  if (!slug) { location.href = '/pages/bams.html'; return; }
+  await loadSubjectDetail();
+  renderNotes();
 });
 
-async function loadSubjectInfo() {
-  const res = await apiGet(`public/categories.php?id=${catId}`);
-  if (!res.success) return;
-  subjectData = res.data;
+async function loadSubjectDetail() {
+  try {
+    const res = await apiGet(`public/subject-detail.php?slug=${encodeURIComponent(slug)}`);
+    if (!res.success) { location.href = '/pages/bams.html'; return; }
+    _data = res.data;
 
-  document.getElementById('subject-name').textContent = subjectData.name;
-  document.title = `${subjectData.name} | Ayurveda Quiz`;
+    const s = _data.subject;
+    document.getElementById('subject-name').textContent  = s.name;
+    document.getElementById('subject-icon').textContent  = s.icon || '📚';
+    document.getElementById('bc-subject').textContent    = s.name;
+    document.getElementById('subject-parent-name').textContent = s.parent_name || '';
+    document.title = s.name + ' | Ayurved Studies';
 
-  // Update breadcrumb
-  const bc = document.getElementById('breadcrumb');
-  if (subjectData.parent) {
-    bc.innerHTML = `<a href="/">Home</a><span>›</span>
-      <a href="/pages/bams.html?year=${subjectData.parent.bams_year || ''}&id=${subjectData.parent.id}">${subjectData.parent.name}</a>
-      <span>›</span><span>${subjectData.name}</span>`;
-  }
-
-  // Check which tabs to show (only if notes exist)
-  const tabRes = await apiGet(`public/notes.php?category_id=${catId}&check_only=1`);
-  if (tabRes.success) {
-    if (tabRes.data.has_syllabus) {
-      document.getElementById('tab-syllabus').classList.remove('hidden');
+    // breadcrumb parent link
+    if (s.parent_slug) {
+      const parentSlug = s.parent_slug;
+      document.getElementById('bc-parent').href = `/pages/bams.html?prof=${parentSlug}`;
+      document.getElementById('bc-parent').textContent = s.parent_name || 'BAMS';
     }
-    if (tabRes.data.has_notes) {
-      document.getElementById('tab-notes').classList.remove('hidden');
-    }
+
+    // Update tab counts
+    if (_data.notes.length)  document.getElementById('tab-notes-btn').innerHTML = `📝 Notes <span class="tab-count">${_data.notes.length}</span>`;
+    if (_data.pdfs.length)   document.getElementById('tab-pdf-btn').innerHTML   = `📄 PDF / Syllabus <span class="tab-count">${_data.pdfs.length}</span>`;
+    if (_data.tests.length)  document.getElementById('tab-tests-btn').innerHTML = `🎯 Tests <span class="tab-count">${_data.tests.length}</span>`;
+
+  } catch(e) {
+    document.getElementById('subject-name').textContent = 'Error loading subject';
   }
-}
-
-async function loadQuizzes() {
-  const list = document.getElementById('quiz-list');
-
-  // Login check
-  if (!Auth.isLoggedIn()) {
-    showLoginGate(list);
-    return;
-  }
-
-  const res = await apiGet(`public/quiz-list.php?category_id=${catId}`);
-
-  if (!res.success || !res.data.length) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">📝</div><h3>Quizzes coming soon</h3><p>Is subject ke liye quiz jald available honge</p></div>';
-    return;
-  }
-
-  list.innerHTML = `
-    <div class="quiz-list">
-      <!-- Practice / Random -->
-      <div class="quiz-list-item">
-        <div class="info">
-          <h4>🎲 Practice Test</h4>
-          <p>Random 10 Questions from ${subjectData?.name || 'this subject'}</p>
-        </div>
-        <div class="meta">
-          <span class="badge">10 Q</span>
-          <a href="/pages/quiz.html?type=practice&category=${catId}" class="btn btn-primary btn-sm">Start →</a>
-        </div>
-      </div>
-      ${res.data.map(q => `
-        <div class="quiz-list-item">
-          <div class="info">
-            <h4>${q.title}</h4>
-            <p>${q.question_count} Questions${q.duration_mins ? ` · ${q.duration_mins} min` : ''}</p>
-          </div>
-          <div class="meta">
-            <span class="badge ${q.type === 'previous_year' ? 'red' : q.type === 'mock' ? 'blue' : ''}">${q.question_count} Q</span>
-            <a href="/pages/quiz.html?type=${q.type}&quiz_id=${q.id}&category=${catId}" class="btn btn-primary btn-sm">Start →</a>
-          </div>
-        </div>`).join('')}
-    </div>`;
-}
-
-async function loadSyllabus() {
-  if (syllabusLoaded) return;
-  syllabusLoaded = true;
-
-  if (!Auth.isLoggedIn()) {
-    showLoginGate(document.getElementById('panel-syllabus'));
-    return;
-  }
-
-  const res = await apiGet(`public/notes.php?category_id=${catId}&type=syllabus`);
-  const el  = document.getElementById('syllabus-content');
-
-  if (!res.success || !res.data.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><h3>Syllabus coming soon</h3></div>';
-    return;
-  }
-
-  el.innerHTML = res.data.map(n => `
-    <h2>${n.title}</h2>
-    <div>${n.content || '<p>Content loading...</p>'}</div>
-    ${n.file_url ? `<div class="mt-2"><a href="${n.file_url}" target="_blank" class="btn btn-outline btn-sm">📥 PDF Download</a></div>` : ''}`
-  ).join('<hr style="margin:20px 0;border-color:var(--border)">');
-}
-
-async function loadNotes() {
-  if (notesLoaded) return;
-  notesLoaded = true;
-
-  if (!Auth.isLoggedIn()) {
-    showLoginGate(document.getElementById('panel-notes'));
-    return;
-  }
-
-  const res = await apiGet(`public/notes.php?category_id=${catId}&type=short_notes`);
-  const container = document.getElementById('notes-list');
-
-  if (!res.success || !res.data.length) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">📖</div><h3>Notes coming soon</h3></div>';
-    return;
-  }
-
-  container.innerHTML = res.data.map(n => `
-    <div class="card mb-3">
-      <h3 style="color:var(--primary);margin-bottom:12px">${n.title}</h3>
-      <div class="notes-content">${n.content || ''}</div>
-      ${n.file_url ? `<div class="mt-2"><a href="${n.file_url}" target="_blank" class="btn btn-outline btn-sm">📥 PDF</a></div>` : ''}
-    </div>`).join('');
 }
 
 function showTab(name) {
-  ['quiz','syllabus','notes'].forEach(t => {
-    document.getElementById(`tab-${t}`)?.classList.toggle('active', t === name);
-    document.getElementById(`panel-${t}`)?.classList.toggle('active', t === name);
+  ['notes','pdf','tests'].forEach(t => {
+    document.getElementById(`panel-${t}`).classList.toggle('active', t === name);
+    document.getElementById(`tab-${t}-btn`).classList.toggle('active', t === name);
   });
-  if (name === 'syllabus') loadSyllabus();
-  if (name === 'notes')    loadNotes();
+  if (name === 'notes'  && !_loaded.notes)  renderNotes();
+  if (name === 'pdf'    && !_loaded.pdf)    renderPdfs();
+  if (name === 'tests'  && !_loaded.tests)  renderTests();
 }
+
+function renderNotes() {
+  _loaded.notes = true;
+  const wrap = document.getElementById('notes-wrap');
+  const notes = _data?.notes || [];
+  if (!notes.length) {
+    wrap.innerHTML = `<div class="empty-tab"><div class="icon">📝</div><p>Is subject ke liye abhi notes add nahi hue</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="notes-list">${notes.map(n => `
+    <div class="note-card">
+      <div class="note-card-title">
+        ${esc(n.title)}
+        <span class="note-card-type">${n.type === 'syllabus' ? 'Syllabus' : n.type === 'short_notes' ? 'Short Notes' : 'Full Notes'}</span>
+      </div>
+      <div class="note-content">${n.content || '<p style="color:var(--text-light)">Content loading...</p>'}</div>
+    </div>`).join('')}</div>`;
+}
+
+function renderPdfs() {
+  _loaded.pdf = true;
+  const wrap = document.getElementById('pdf-wrap');
+  const pdfs = _data?.pdfs || [];
+  if (!pdfs.length) {
+    wrap.innerHTML = `<div class="empty-tab"><div class="icon">📄</div><p>Is subject ke liye koi PDF upload nahi hua</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="pdf-list">${pdfs.map(p => `
+    <a href="${esc(p.file_url)}" target="_blank" rel="noopener" class="pdf-card">
+      <div class="pdf-icon">📄</div>
+      <div class="pdf-body">
+        <div class="pdf-title">${esc(p.title)}</div>
+        <div class="pdf-meta">
+          <span class="pdf-type-tag">${esc(p.pdf_type)}</span>
+        </div>
+        <div class="pdf-dl">📥 Download / View</div>
+      </div>
+    </a>`).join('')}</div>`;
+}
+
+function renderTests() {
+  _loaded.tests = true;
+  const wrap  = document.getElementById('tests-wrap');
+  const tests = _data?.tests || [];
+  if (!tests.length) {
+    wrap.innerHTML = `<div class="empty-tab"><div class="icon">🎯</div><p>Is subject ke liye koi test assign nahi hua</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="tests-list">${tests.map(t => `
+    <div class="test-card">
+      <div class="test-card-icon">🎯</div>
+      <div class="test-card-body">
+        <div class="test-card-title">${esc(t.title)}</div>
+        <div class="test-card-meta">
+          <span>📝 ${t.total_questions} Questions</span>
+          <span>⏱ ${t.time_minutes} min</span>
+          ${t.description ? `<span>${esc(t.description)}</span>` : ''}
+        </div>
+      </div>
+      <div class="test-card-actions">
+        <a href="/pages/quiz.html?type=mock&test_id=${t.id}" class="btn btn-primary btn-sm">Start →</a>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>

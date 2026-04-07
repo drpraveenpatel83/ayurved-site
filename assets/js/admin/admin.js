@@ -1187,3 +1187,288 @@ function downloadTestSampleCsv() {
   a.download = 'test_questions_sample.csv';
   a.click();
 }
+
+/* ============================================================
+   SUBJECTS MANAGEMENT
+   ============================================================ */
+let _allSubjects = [];
+let _parentCats  = [];
+
+async function initSubjectsPanel() {
+  // Load parent categories for filter + modal
+  const res = await apiGet('admin/subjects/list.php?type=parents');
+  _parentCats = res?.data || [];
+
+  // Fill filter select
+  const filterSel = document.getElementById('subj-filter-parent');
+  if (filterSel) {
+    filterSel.innerHTML = '<option value="">All Categories</option>' +
+      _parentCats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  }
+
+  // Fill modal parent select
+  const modalSel = document.getElementById('sf-parent');
+  if (modalSel) {
+    modalSel.innerHTML = '<option value="">— Select —</option>' +
+      _parentCats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  }
+
+  await loadSubjects();
+}
+
+async function loadSubjects() {
+  const tbody   = document.getElementById('subj-tbody');
+  const parentId = document.getElementById('subj-filter-parent')?.value || '';
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner" style="width:24px;height:24px;margin:0 auto"></div></td></tr>';
+
+  const url = parentId ? `admin/subjects/list.php?parent_id=${parentId}` : 'admin/subjects/list.php';
+  const res = await apiGet(url);
+  _allSubjects = res?.data || [];
+
+  if (!_allSubjects.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#95a5a6">Koi subject nahi mila. "Add Subject" se add karein.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = _allSubjects.map((s, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${s.icon||''} ${escA(s.name)}</strong></td>
+      <td><span style="font-size:0.78rem;color:var(--primary)">${escA(s.parent_name||'—')}</span></td>
+      <td><span style="background:#e8f5ee;color:#1a6e3c;padding:2px 7px;border-radius:4px;font-size:0.75rem;font-weight:700">${s.notes_count}</span></td>
+      <td><span style="background:#fdecea;color:#c0392b;padding:2px 7px;border-radius:4px;font-size:0.75rem;font-weight:700">${s.pdfs_count}</span></td>
+      <td><span style="background:#e8f4fd;color:#0170B9;padding:2px 7px;border-radius:4px;font-size:0.75rem;font-weight:700">${s.tests_count}</span></td>
+      <td>
+        <button class="btn-admin btn-admin-outline btn-sm" onclick="editSubject(${s.id})">✏️ Edit</button>
+        <button class="btn-admin btn-sm" style="background:#fdecea;color:#c0392b;border:none;padding:5px 10px;border-radius:4px;cursor:pointer" onclick="deleteSubject(${s.id},'${escA(s.name)}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openSubjectModal(subj = null) {
+  document.getElementById('sf-id').value    = subj?.id || '';
+  document.getElementById('sf-name').value  = subj?.name || '';
+  document.getElementById('sf-icon').value  = subj?.icon || '📚';
+  document.getElementById('sf-color').value = subj?.color || '#1a6e3c';
+  document.getElementById('sf-order').value = subj?.display_order || 0;
+  if (subj?.parent_id) document.getElementById('sf-parent').value = subj.parent_id;
+  document.getElementById('subj-modal-title').textContent = subj ? 'Edit Subject' : 'Add Subject';
+  openModal('subject-modal');
+}
+
+function editSubject(id) {
+  const s = _allSubjects.find(x => x.id === id);
+  if (s) openSubjectModal(s);
+}
+
+async function saveSubject(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('[type=submit]');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  const res = await apiPost('admin/subjects/save.php', {
+    id:            document.getElementById('sf-id').value || null,
+    name:          document.getElementById('sf-name').value,
+    parent_id:     document.getElementById('sf-parent').value,
+    icon:          document.getElementById('sf-icon').value,
+    color:         document.getElementById('sf-color').value,
+    display_order: document.getElementById('sf-order').value,
+  });
+  btn.disabled = false; btn.textContent = 'Save Subject';
+  if (res.success) { closeModal('subject-modal'); Toast.success('Subject saved!'); loadSubjects(); }
+  else Toast.error(res.message || 'Error');
+}
+
+async function deleteSubject(id, name) {
+  if (!confirm(`"${name}" delete karein? Notes, PDFs bhi delete honge.`)) return;
+  const res = await apiPost('admin/subjects/delete.php', { id });
+  if (res.success) { Toast.success('Deleted!'); loadSubjects(); }
+  else Toast.error(res.message || 'Error');
+}
+
+/* ============================================================
+   SUBJECT PDFs
+   ============================================================ */
+let _allPdfs = [];
+
+async function initPdfsPanel() {
+  // Load subjects for filter + modal
+  const res = await apiGet('admin/subjects/list.php');
+  const subjects = res?.data || [];
+
+  const filterSel = document.getElementById('pdf-filter-subj');
+  const modalSel  = document.getElementById('pf-subject');
+  const opts = '<option value="">All Subjects</option>' +
+    subjects.map(s => `<option value="${s.id}">${s.parent_name ? s.parent_name+' › ':''} ${escA(s.name)}</option>`).join('');
+
+  if (filterSel) filterSel.innerHTML = opts;
+  if (modalSel)  modalSel.innerHTML  = opts.replace('All Subjects','— Select Subject —');
+
+  await loadPdfs();
+}
+
+async function loadPdfs() {
+  const tbody  = document.getElementById('pdf-tbody');
+  const subjId = document.getElementById('pdf-filter-subj')?.value || '';
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px"><div class="spinner" style="width:24px;height:24px;margin:0 auto"></div></td></tr>';
+
+  const url = subjId ? `admin/pdfs/list.php?category_id=${subjId}` : 'admin/pdfs/list.php';
+  const res = await apiGet(url);
+  _allPdfs  = res?.data || [];
+
+  if (!_allPdfs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#95a5a6">Koi PDF nahi mila.</td></tr>';
+    return;
+  }
+
+  const typeLabel = { syllabus:'📋 Syllabus', notes:'📝 Notes', pyq:'📄 PYQ', other:'📎 Other' };
+  tbody.innerHTML = _allPdfs.map((p, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><a href="${escA(p.file_url)}" target="_blank" style="font-weight:600;color:var(--primary)">${escA(p.title)}</a></td>
+      <td style="font-size:0.8rem">${escA(p.subject_name||'—')}</td>
+      <td><span style="font-size:0.75rem;font-weight:700">${typeLabel[p.pdf_type]||p.pdf_type}</span></td>
+      <td>${p.is_published ? '<span style="color:#1a6e3c;font-weight:700">✅ Live</span>' : '<span style="color:#95a5a6">Draft</span>'}</td>
+      <td>
+        <button class="btn-admin btn-admin-outline btn-sm" onclick="editPdf(${p.id})">✏️ Edit</button>
+        <button class="btn-admin btn-sm" style="background:#fdecea;color:#c0392b;border:none;padding:5px 10px;border-radius:4px;cursor:pointer" onclick="deletePdf(${p.id})">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openPdfModal(pdf = null) {
+  document.getElementById('pf-id').value        = pdf?.id || '';
+  document.getElementById('pf-title').value     = pdf?.title || '';
+  document.getElementById('pf-url').value       = pdf?.file_url || '';
+  document.getElementById('pf-type').value      = pdf?.pdf_type || 'syllabus';
+  document.getElementById('pf-published').value = pdf?.is_published ?? 1;
+  if (pdf?.category_id) document.getElementById('pf-subject').value = pdf.category_id;
+  document.getElementById('pdf-modal-title').textContent = pdf ? 'Edit PDF' : 'Add PDF';
+  openModal('pdf-modal');
+}
+
+function editPdf(id) {
+  const p = _allPdfs.find(x => x.id === id);
+  if (p) openPdfModal(p);
+}
+
+async function savePdf(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('[type=submit]');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  const res = await apiPost('admin/pdfs/save.php', {
+    id:          document.getElementById('pf-id').value || null,
+    category_id: document.getElementById('pf-subject').value,
+    title:       document.getElementById('pf-title').value,
+    file_url:    document.getElementById('pf-url').value,
+    pdf_type:    document.getElementById('pf-type').value,
+    is_published:document.getElementById('pf-published').value,
+  });
+  btn.disabled = false; btn.textContent = 'Save PDF';
+  if (res.success) { closeModal('pdf-modal'); Toast.success('PDF saved!'); loadPdfs(); }
+  else Toast.error(res.message || 'Error');
+}
+
+async function deletePdf(id) {
+  if (!confirm('PDF delete karein?')) return;
+  const res = await apiPost('admin/pdfs/delete.php', { id });
+  if (res.success) { Toast.success('Deleted!'); loadPdfs(); }
+  else Toast.error(res.message);
+}
+
+/* ============================================================
+   TEST → SUBJECT ASSIGNMENT
+   ============================================================ */
+let _taAllSubjects = [];
+let _taChecked     = new Set();
+
+async function initTestAssignPanel() {
+  // Load tests dropdown
+  const testsRes = await apiGet('admin/tests/list.php?limit=200');
+  const tests    = testsRes?.data?.tests || testsRes?.data || [];
+  const sel      = document.getElementById('ta-test-select');
+  if (sel) {
+    sel.innerHTML = '<option value="">— Test chunein —</option>' +
+      tests.map(t => `<option value="${t.id}">${escA(t.title)}</option>`).join('');
+  }
+
+  // Load all subjects
+  const subjRes  = await apiGet('admin/subjects/list.php');
+  _taAllSubjects = subjRes?.data || [];
+}
+
+async function loadTestSubjectMap() {
+  const testId = document.getElementById('ta-test-select').value;
+  const wrap   = document.getElementById('ta-subjects-wrap');
+  const empty  = document.getElementById('ta-empty');
+
+  if (!testId) { wrap.style.display='none'; empty.style.display='block'; return; }
+  wrap.style.display = 'block';
+  empty.style.display = 'none';
+
+  // Get currently assigned subjects
+  const res = await apiGet(`admin/subjects/test-map.php?test_id=${testId}`);
+  const assigned = res?.data || [];
+  _taChecked = new Set(assigned.map(a => a.category_id));
+
+  renderTestSubjectCheckboxes();
+}
+
+function renderTestSubjectCheckboxes() {
+  const container = document.getElementById('ta-subjects-list');
+  if (!_taAllSubjects.length) {
+    container.innerHTML = '<p style="color:#95a5a6;font-size:0.85rem">Pehle subjects add karein</p>';
+    return;
+  }
+
+  // Group by parent
+  const grouped = {};
+  _taAllSubjects.forEach(s => {
+    const pName = s.parent_name || 'Other';
+    if (!grouped[pName]) grouped[pName] = [];
+    grouped[pName].push(s);
+  });
+
+  container.innerHTML = Object.entries(grouped).map(([pName, subjects]) => `
+    <div style="margin-bottom:14px">
+      <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:7px">${escA(pName)}</div>
+      ${subjects.map(s => `
+        <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.15s;${_taChecked.has(s.id)?'background:#e8f5ee;':''}hover:background:#f8f9fa">
+          <input type="checkbox" value="${s.id}" ${_taChecked.has(s.id)?'checked':''} onchange="toggleTaCheck(${s.id},this.checked)" style="width:16px;height:16px;accent-color:var(--primary)">
+          <span style="font-size:0.85rem;font-weight:600">${s.icon||'📚'} ${escA(s.name)}</span>
+        </label>`).join('')}
+    </div>`).join('');
+}
+
+function toggleTaCheck(id, checked) {
+  if (checked) _taChecked.add(id); else _taChecked.delete(id);
+}
+
+async function saveTestAssignment() {
+  const testId = document.getElementById('ta-test-select').value;
+  if (!testId) { Toast.warn('Test select karein'); return; }
+  const res = await apiPost('admin/subjects/assign-test.php', {
+    test_id:      parseInt(testId),
+    category_ids: Array.from(_taChecked),
+  });
+  if (res.success) Toast.success(`✅ ${res.data.assigned} subjects assigned!`);
+  else Toast.error(res.message || 'Error');
+}
+
+// Hook into showPanel
+const _origShowPanel = typeof showPanel === 'function' ? showPanel : null;
+const _panelInits = {
+  'subjects':    () => initSubjectsPanel(),
+  'subject-pdfs':() => initPdfsPanel(),
+  'test-assign': () => initTestAssignPanel(),
+};
+
+// Patch showPanel to auto-init new panels
+if (typeof showPanel === 'function') {
+  const __orig = showPanel;
+  window.showPanel = function(name) {
+    __orig(name);
+    if (_panelInits[name]) _panelInits[name]();
+  };
+}
+
+function escA(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }

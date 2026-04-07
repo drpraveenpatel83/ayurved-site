@@ -1,136 +1,229 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BAMS | Ayurveda Quiz</title>
+  <title>BAMS | Ayurved Studies</title>
+  <meta name="description" content="BAMS 1st, 2nd & 3rd Prof subjects — NCISM Syllabus, Notes, Tests">
   <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .prof-hero{background:linear-gradient(135deg,#1a6e3c 0%,#0d4a28 100%);color:#fff;padding:32px 0 24px}
+    .prof-hero h1{font-size:1.6rem;font-weight:800;margin-bottom:6px}
+    .prof-hero p{font-size:0.88rem;opacity:.8;max-width:560px}
+
+    .prof-tabs-bar{background:#fff;border-bottom:2px solid var(--border);position:sticky;top:62px;z-index:100}
+    .prof-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+    .prof-tabs::-webkit-scrollbar{display:none}
+    .prof-tab{background:none;border:none;border-bottom:3px solid transparent;padding:14px 20px;font-size:0.88rem;font-weight:700;color:var(--text-mid);cursor:pointer;white-space:nowrap;margin-bottom:-2px;transition:.18s;font-family:var(--font)}
+    .prof-tab:hover{color:var(--primary)}
+    .prof-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+    .subjects-section{padding:32px 0 56px;background:var(--bg)}
+    .subjects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+
+    .subject-card{background:#fff;border-radius:12px;padding:20px 16px 16px;box-shadow:var(--shadow);border:1px solid var(--border);border-top:4px solid #1a6e3c;text-decoration:none;color:var(--text);transition:.22s;display:flex;flex-direction:column;gap:10px;position:relative}
+    .subject-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+    .subject-card-icon{font-size:2rem;line-height:1}
+    .subject-card-name{font-size:0.92rem;font-weight:800;line-height:1.35;color:var(--text)}
+    .subject-card-badges{display:flex;gap:5px;flex-wrap:wrap}
+    .sub-badge{font-size:0.67rem;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+    .sub-badge.notes{background:#e8f5ee;color:#1a6e3c}
+    .sub-badge.pdf{background:#fdecea;color:#c0392b}
+    .sub-badge.test{background:#e8f4fd;color:#0170B9}
+    .sub-badge.empty{background:var(--bg);color:var(--text-light);border:1px solid var(--border)}
+    .subject-card-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
+    .subject-card-explore{font-size:0.78rem;font-weight:700;color:var(--primary)}
+    .subject-card-arrow{font-size:1rem;color:var(--primary);transition:.18s}
+    .subject-card:hover .subject-card-arrow{transform:translateX(3px)}
+
+    .empty-subjects{text-align:center;padding:64px 20px;color:var(--text-mid)}
+    .empty-subjects .icon{font-size:3.5rem;margin-bottom:16px}
+    .empty-subjects h3{font-size:1rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+
+    @media(max-width:580px){
+      .subjects-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+      .subject-card{padding:14px 12px 12px}
+      .subject-card-icon{font-size:1.5rem}
+      .subject-card-name{font-size:0.82rem}
+      .prof-tab{padding:12px 14px;font-size:0.82rem}
+    }
+  </style>
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="navbar">
-  <div class="container navbar-inner">
-    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
-    <div class="navbar-menu" id="nav-menu">
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/assets/img/logo.png" alt="Ayurved Studies" class="nav-brand-logo">
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
+      </div>
+    </a>
+    <div class="nav-menu" id="nav-menu">
       <a href="/">Home</a>
-      <a href="/pages/bams.html?year=1" class="active">BAMS</a>
-      <a href="/pages/aiapget.html">AIAPGET</a>
-      <a href="/pages/samhita.html">Samhita</a>
-      <a href="/pages/govt-exam.html">Govt Exams</a>
+      <div class="nav-dropdown">
+        <a href="/pages/bams.html" class="nav-dropdown-trigger active">BAMS <span class="nav-caret">▾</span></a>
+        <div class="nav-dropdown-menu">
+          <a href="/pages/bams.html?prof=bams-1st-prof">📚 1st Prof</a>
+          <a href="/pages/bams.html?prof=bams-2nd-prof">📗 2nd Prof</a>
+          <a href="/pages/bams.html?prof=bams-3rd-prof">📘 3rd Prof</a>
+          <div class="nav-dd-divider"></div>
+          <a href="/pages/bams.html?prof=aiapget">🎯 AIAPGET</a>
+          <a href="/pages/bams.html?prof=ncism">📋 NCISM</a>
+        </div>
+      </div>
+      <a href="/blog-post/">Blog Posts</a>
+      <a href="/pages/quiz.html">Quiz <span class="new-badge">New</span></a>
+      <a href="/pages/login.html" class="nav-mobile-login">Login / Register</a>
     </div>
-    <div class="navbar-actions">
-      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+    <div class="nav-actions">
+      <div id="nav-login-btn"><a href="/pages/login.html" class="btn btn-primary btn-sm">Login</a></div>
       <div class="hidden" id="nav-user-btn">
-        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
-        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name"></span></a>
       </div>
     </div>
-    <button class="navbar-hamburger" id="nav-burger">☰</button>
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">☰</button>
   </div>
 </nav>
 
-<!-- Year Tabs -->
-<div style="background:white;border-bottom:2px solid var(--border);padding:0">
+<section class="prof-hero">
   <div class="container">
-    <div class="tabs" style="border-bottom:none;padding-top:4px">
-      <button class="tab-btn" id="yr-tab-1" onclick="setYear(1)">📚 1st Year</button>
-      <button class="tab-btn" id="yr-tab-2" onclick="setYear(2)">📗 2nd Year</button>
-      <button class="tab-btn" id="yr-tab-3" onclick="yr-tab-3">📘 3rd Year</button>
+    <div style="font-size:0.78rem;opacity:.7;margin-bottom:10px">
+      <a href="/" style="color:rgba(255,255,255,.75)">Home</a>
+      <span style="margin:0 6px">›</span>
+      <span id="hero-breadcrumb">BAMS</span>
+    </div>
+    <h1 id="hero-title">📚 BAMS 1st Prof</h1>
+    <p id="hero-sub">Padartha Vigyan, Sanskrit, Kriya Sharir, Rachana Sharir, Maulik Siddhant</p>
+  </div>
+</section>
+
+<div class="prof-tabs-bar">
+  <div class="container">
+    <div class="prof-tabs">
+      <button class="prof-tab" data-slug="bams-1st-prof" onclick="switchProf('bams-1st-prof',this)">📚 1st Prof</button>
+      <button class="prof-tab" data-slug="bams-2nd-prof" onclick="switchProf('bams-2nd-prof',this)">📗 2nd Prof</button>
+      <button class="prof-tab" data-slug="bams-3rd-prof" onclick="switchProf('bams-3rd-prof',this)">📘 3rd Prof</button>
+      <button class="prof-tab" data-slug="aiapget" onclick="switchProf('aiapget',this)">🎯 AIAPGET</button>
+      <button class="prof-tab" data-slug="govt-exam" onclick="switchProf('govt-exam',this)">🏛 Govt Exam</button>
+      <button class="prof-tab" data-slug="ncism" onclick="switchProf('ncism',this)">📋 NCISM</button>
     </div>
   </div>
 </div>
 
-<!-- Page Header -->
-<div class="page-header">
+<section class="subjects-section">
   <div class="container">
-    <div class="breadcrumb">
-      <a href="/">Home</a><span>›</span><span>BAMS</span>
+    <div id="subjects-wrap">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
     </div>
-    <h1 id="year-title">BAMS 1st Year</h1>
-    <p id="year-subtitle">Select a subject to start practice</p>
   </div>
-</div>
-
-<!-- Subjects Grid -->
-<div class="container section">
-  <div class="section-header">
-    <div class="section-title">Subjects</div>
-  </div>
-  <div id="subjects-grid">
-    <div class="spinner-wrap"><div class="spinner"></div></div>
-  </div>
-</div>
+</section>
 
 <footer class="footer">
-  <div class="container">
-    <div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div>
+  <div class="container footer-top">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo-wrap">
+          <img src="/assets/img/logo.png" alt="Ayurved Studies" class="footer-logo">
+          <div class="site-name">Ayurved Studies</div>
+        </div>
+        <p>India's free Ayurveda education platform.</p>
+        <div class="footer-social">
+          <a href="#">▶ YouTube</a><a href="#">✈ Telegram</a><a href="#">📷 Instagram</a>
+        </div>
+      </div>
+      <div class="footer-col"><h4>BAMS</h4>
+        <a href="/pages/bams.html?prof=bams-1st-prof">1st Prof</a>
+        <a href="/pages/bams.html?prof=bams-2nd-prof">2nd Prof</a>
+        <a href="/pages/bams.html?prof=bams-3rd-prof">3rd Prof</a>
+      </div>
+      <div class="footer-col"><h4>Exams</h4>
+        <a href="/pages/bams.html?prof=aiapget">AIAPGET</a>
+        <a href="/pages/bams.html?prof=govt-exam">Govt Exams</a>
+        <a href="/pages/bams.html?prof=ncism">NCISM</a>
+        <a href="/pages/quiz.html">Daily Quiz</a>
+      </div>
+      <div class="footer-col"><h4>Info</h4>
+        <a href="/pages/login.html">Login / Register</a>
+        <a href="/pages/profile.html">My Profile</a>
+        <a href="/privacy-policy/">Privacy Policy</a>
+      </div>
+    </div>
   </div>
+  <div class="footer-bottom"><div class="container">© 2025 Ayurved Studies. All rights reserved.</div></div>
 </footer>
 
 <script src="/assets/js/app.js"></script>
 <script>
-let activeYear = 1;
+const PROF_META = {
+  'bams-1st-prof': { label:'BAMS 1st Prof', icon:'📚', sub:'Padartha Vigyan, Sanskrit, Kriya Sharir, Rachana Sharir, Maulik Siddhant' },
+  'bams-2nd-prof': { label:'BAMS 2nd Prof', icon:'📗', sub:'Dravyaguna, Rasashastra, Rognidan, Swasthavritta, Charaka Purva' },
+  'bams-3rd-prof': { label:'BAMS 3rd Prof', icon:'📘', sub:'Kayachikitsa, Shalya, Shalakya, Prasuti, Kaumarbhritya, Charaka Uttara' },
+  'aiapget':       { label:'AIAPGET',        icon:'🎯', sub:'Subject-wise MCQ Practice, Previous Year Papers, Mock Tests' },
+  'govt-exam':     { label:'Govt Exams',     icon:'🏛', sub:'State PSC, UPSC AYUSH, NHM and other Govt Exam preparation' },
+  'ncism':         { label:'NCISM',          icon:'📋', sub:'NCISM Syllabus PDFs, Updates, Rules and Regulations' },
+};
+let _active = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const yr = parseInt(Params.get('year')) || 1;
-  setYear(yr);
+  const p   = new URLSearchParams(location.search).get('prof') || 'bams-1st-prof';
+  const btn = document.querySelector(`.prof-tab[data-slug="${p}"]`);
+  switchProf(p, btn || document.querySelector('.prof-tab'));
 });
 
-async function setYear(yr) {
-  activeYear = yr;
-  // Update URL without reload
-  history.replaceState({}, '', `/pages/bams.html?year=${yr}`);
+async function switchProf(slug, btn) {
+  if (_active === slug) return;
+  _active = slug;
+  document.querySelectorAll('.prof-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
 
-  // Update tabs
-  [1,2,3].forEach(y => {
-    const t = document.getElementById(`yr-tab-${y}`);
-    if (t) t.classList.toggle('active', y === yr);
-  });
+  const m = PROF_META[slug] || { label:slug, icon:'📚', sub:'' };
+  document.getElementById('hero-title').textContent     = m.icon + ' ' + m.label;
+  document.getElementById('hero-sub').textContent       = m.sub;
+  document.getElementById('hero-breadcrumb').textContent= m.label;
+  document.title = m.label + ' | Ayurved Studies';
+  history.replaceState(null, '', `/pages/bams.html?prof=${slug}`);
 
-  const names = {1:'BAMS 1st Year', 2:'BAMS 2nd Year', 3:'BAMS 3rd Year'};
-  document.getElementById('year-title').textContent = names[yr];
-  document.title = `${names[yr]} | Ayurveda Quiz`;
-
-  await loadSubjects(yr);
+  await loadSubjects(slug);
 }
 
-async function loadSubjects(yr) {
-  const grid = document.getElementById('subjects-grid');
-  showSpinner(grid);
-
-  const res = await apiGet(`public/categories.php?type=bams_year&year=${yr}`);
-
-  if (!res.success || !res.data.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="icon">📚</div><h3>Subjects coming soon</h3></div>';
-    return;
+async function loadSubjects(slug) {
+  const wrap = document.getElementById('subjects-wrap');
+  wrap.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  try {
+    const res      = await apiGet(`public/subjects.php?parent=${encodeURIComponent(slug)}`);
+    const subjects = res?.data?.subjects || [];
+    if (!subjects.length) {
+      wrap.innerHTML = `<div class="empty-subjects"><div class="icon">📚</div><h3>Koi subject nahi mila</h3><p>Admin se subjects add karwayein</p></div>`;
+      return;
+    }
+    wrap.innerHTML = `<div class="subjects-grid">${subjects.map(subjectCard).join('')}</div>`;
+  } catch {
+    wrap.innerHTML = `<div class="empty-subjects"><div class="icon">⚠️</div><h3>Load nahi hua</h3><p>Page refresh karein</p></div>`;
   }
-
-  // Find the BAMS year parent category then get its subjects
-  const yearCat = res.data[0];
-  const subjRes = await apiGet(`public/categories.php?parent_id=${yearCat.id}`);
-
-  if (!subjRes.success || !subjRes.data.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="icon">📚</div><h3>Subjects add nahi hue hain</h3></div>';
-    return;
-  }
-
-  grid.innerHTML = `<div class="subjects-grid">${
-    subjRes.data.map(s => `
-      <a href="/pages/subject.html?id=${s.id}" class="subject-card">
-        <span class="icon">${s.icon || '📖'}</span>
-        <div class="info">
-          <h4>${s.name}</h4>
-          <p>${s.question_count || 0} Questions available</p>
-        </div>
-        <span class="arrow">›</span>
-      </a>`).join('')
-  }</div>`;
 }
 
-// Fix year 3 tab onclick
-document.getElementById('yr-tab-3').onclick = () => setYear(3);
+function subjectCard(s) {
+  const n = s.notes_count > 0 ? `<span class="sub-badge notes">📝 ${s.notes_count} Notes</span>` : '';
+  const p = s.pdfs_count  > 0 ? `<span class="sub-badge pdf">📄 ${s.pdfs_count} PDF</span>`   : '';
+  const t = s.tests_count > 0 ? `<span class="sub-badge test">🎯 ${s.tests_count} Test</span>` : '';
+  const e = (!s.notes_count && !s.pdfs_count && !s.tests_count) ? `<span class="sub-badge empty">Coming Soon</span>` : '';
+  return `
+    <a href="/pages/subject.html?slug=${esc(s.slug)}" class="subject-card" style="border-top-color:${esc(s.color||'#1a6e3c')}">
+      <div class="subject-card-icon">${esc(s.icon||'📚')}</div>
+      <div class="subject-card-name">${esc(s.name)}</div>
+      <div class="subject-card-badges">${n}${p}${t}${e}</div>
+      <div class="subject-card-footer">
+        <span class="subject-card-explore">Explore</span>
+        <span class="subject-card-arrow">→</span>
+      </div>
+    </a>`;
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
