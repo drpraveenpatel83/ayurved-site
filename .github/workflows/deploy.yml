@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:   # Manual trigger button bhi hoga GitHub Actions tab mein
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -23,12 +24,12 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
+          protocol: ftps        # Hostinger FTPS support karta hai — zyada reliable
           port: 21
-          server-dir: domains/ayurvedstudies.com/public_html/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}   # hPanel se sahi path Secret mein daal do
           local-dir: ./
-          timeout: 60000
-          log-level: verbose
+          timeout: 120000
+          log-level: standard
           exclude: |
             **/.git*
             **/.git*/**
