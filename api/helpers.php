@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/db.php';
 
-function jsonSuccess($data=[], $msg='OK', $code=200): never {
+function jsonSuccess($data=[], $msg='OK', $code=200): void {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success'=>true,'message'=>$msg,'data'=>$data]); exit;
 }
-function jsonError($msg, $code=400, $data=null): never {
+function jsonError($msg, $code=400, $data=null): void {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success'=>false,'message'=>$msg,'data'=>$data]); exit;
@@ -40,6 +40,6 @@ function body(): array {
     static $p=null; if($p===null){$p=json_decode(file_get_contents('php://input'),true)??[];}return $p;
 }
 function str(string $k, string $d=''): string { return trim((string)(body()[$k]??$_POST[$k]??$_GET[$k]??$d)); }
-function intVal(string $k, int $d=0): int { return (int)(body()[$k]??$_POST[$k]??$_GET[$k]??$d); }
+function intParam(string $k, int $d=0): int { return (int)(body()[$k]??$_POST[$k]??$_GET[$k]??$d); }
 function generateToken(int $b=32): string { return bin2hex(random_bytes($b)); }
 function makeSlug(string $t): string { return trim(preg_replace('/-+/','-',preg_replace('/[^a-z0-9\-]/','',strtolower($t))),'-'); }

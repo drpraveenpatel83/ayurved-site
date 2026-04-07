@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__).'/helpers.php'; setCorsHeaders();
-$db=getDB(); $catId=intVal('category_id'); $type=str('type'); $checkOnly=intVal('check_only');
+$db=getDB(); $catId=intParam('category_id'); $type=str('type'); $checkOnly=intParam('check_only');
 if(!$catId) jsonError('category_id required');
 if($checkOnly){
     $s=$db->prepare("SELECT type,COUNT(*) as cnt FROM notes WHERE category_id=? AND is_published=1 GROUP BY type");

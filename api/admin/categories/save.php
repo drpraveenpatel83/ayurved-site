@@ -2,10 +2,10 @@
 require_once dirname(__DIR__,2).'/helpers.php'; setCorsHeaders();
 if($_SERVER['REQUEST_METHOD']!=='POST') jsonError('POST only',405); requireAdmin();
 $db=getDB(); $b=body();
-$id=intVal('id'); $pid=intVal('parent_id')?:null; $name=trim($b['name']??'');
-$type=$b['type']??'subject'; $yr=intVal('bams_year')?:null;
+$id=intParam('id'); $pid=intParam('parent_id')?:null; $name=trim($b['name']??'');
+$type=$b['type']??'subject'; $yr=intParam('bams_year')?:null;
 $icon=trim($b['icon']??''); $color=trim($b['color']??'#E67E22');
-$order=intVal('display_order'); $active=isset($b['is_active'])?(int)$b['is_active']:1;
+$order=intParam('display_order'); $active=isset($b['is_active'])?(int)$b['is_active']:1;
 if(!$name) jsonError('Name required');
 $slug=makeSlug($name);
 $chk=$db->prepare("SELECT id FROM categories WHERE slug=?".($id?" AND id!=?":""));

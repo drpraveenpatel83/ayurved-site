@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonError('POST only', 405);
 
 $body = body();
 
-$id          = intVal('id', $body) ?: null;
+$id          = !empty($body['id']) ? (int)$body['id'] : null;
 $title       = str($body['title'] ?? '');
 $content     = $body['content'] ?? '';          // HTML — trusted admin input
 $excerpt     = str($body['excerpt'] ?? '');

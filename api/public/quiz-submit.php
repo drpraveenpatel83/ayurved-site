@@ -2,7 +2,7 @@
 require_once dirname(__DIR__).'/helpers.php'; setCorsHeaders();
 if($_SERVER['REQUEST_METHOD']!=='POST') jsonError('POST only',405);
 $user=requireAuth(); $db=getDB();
-$attemptId=intVal('attempt_id'); $submitted=body()['answers']??[];
+$attemptId=intParam('attempt_id'); $submitted=body()['answers']??[];
 if(!$attemptId) jsonError('attempt_id required');
 $attempt=$db->prepare("SELECT * FROM quiz_attempts WHERE id=? AND user_id=? AND completed_at IS NULL");
 $attempt->execute([$attemptId,$user['id']]); $att=$attempt->fetch();
@@ -21,7 +21,7 @@ foreach($submitted as $ans){
 }
 $shareToken=generateToken(16);
 $db->prepare("UPDATE quiz_attempts SET score=?,completed_at=NOW(),time_taken_secs=?,share_token=? WHERE id=?")
-   ->execute([$score,intVal('time_taken'),$shareToken,$attemptId]);
+   ->execute([$score,intParam('time_taken'),$shareToken,$attemptId]);
 $ins=$db->prepare("INSERT INTO attempt_answers(attempt_id,question_id,selected_option,is_correct)VALUES(?,?,?,?)");
 foreach($answerRows as $r) $ins->execute($r);
 // Return full result with explanations

@@ -1,17 +1,17 @@
 <?php
 require_once dirname(__DIR__).'/helpers.php'; setCorsHeaders();
-$db=getDB(); $id=intVal('id');
+$db=getDB(); $id=intParam('id');
 if($id){
     $s=$db->prepare("SELECT c.*,p.name as parent_name,p.bams_year as parent_bams_year,p.type as parent_type,(SELECT COUNT(*) FROM questions q WHERE q.category_id=c.id AND q.is_active=1) as question_count FROM categories c LEFT JOIN categories p ON p.id=c.parent_id WHERE c.id=? AND c.is_active=1");
     $s->execute([$id]); $cat=$s->fetch(); if(!$cat) jsonError('Not found',404);
     jsonSuccess($cat);
 }
-$root=intVal('root');
+$root=intParam('root');
 if($root){
     $s=$db->query("SELECT c.*,(SELECT COUNT(*) FROM questions q JOIN categories sc ON sc.id=q.category_id WHERE(sc.id=c.id OR sc.parent_id=c.id)AND q.is_active=1)as question_count FROM categories c WHERE c.parent_id IS NULL AND c.is_active=1 ORDER BY c.display_order,c.id");
     jsonSuccess($s->fetchAll());
 }
-$type=str('type'); $year=intVal('year'); $pid=intVal('parent_id'); $inc=intVal('include_children');
+$type=str('type'); $year=intParam('year'); $pid=intParam('parent_id'); $inc=intParam('include_children');
 $w=['c.is_active=1']; $p=[];
 if($type){$w[]='c.type=?';$p[]=$type;}
 if($year){$w[]='c.bams_year=?';$p[]=$year;}

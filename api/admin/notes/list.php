@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__,2).'/helpers.php'; setCorsHeaders(); requireAdmin();
-$db=getDB(); $catId=intVal('category_id'); $type=str('type');
+$db=getDB(); $catId=intParam('category_id'); $type=str('type');
 $w=['1=1'];$p=[];
 if($catId){$w[]='n.category_id=?';$p[]=$catId;}
 if($type){$w[]='n.type=?';$p[]=$type;}

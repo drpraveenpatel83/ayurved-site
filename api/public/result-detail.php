@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__).'/helpers.php'; setCorsHeaders();
-$user=requireAuth(); $id=intVal('attempt_id'); if(!$id) jsonError('attempt_id required');
+$user=requireAuth(); $id=intParam('attempt_id'); if(!$id) jsonError('attempt_id required');
 $db=getDB();
 $s=$db->prepare("SELECT * FROM quiz_attempts WHERE id=? AND user_id=? AND completed_at IS NOT NULL");
 $s->execute([$id,$user['id']]); $att=$s->fetch(); if(!$att) jsonError('Not found',404);

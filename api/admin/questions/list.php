@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__,2).'/helpers.php'; setCorsHeaders(); requireAdmin();
-$db=getDB(); $pg=max(1,intVal('page')?:1); $lim=20; $off=($pg-1)*$lim;
-$catId=intVal('category_id'); $search=str('search');
+$db=getDB(); $pg=max(1,intParam('page')?:1); $lim=20; $off=($pg-1)*$lim;
+$catId=intParam('category_id'); $search=str('search');
 $w=['1=1'];$p=[];
 if($catId){$w[]='q.category_id=?';$p[]=$catId;}
 if($search){$w[]='q.question_text LIKE ?';$p[]="%$search%";}

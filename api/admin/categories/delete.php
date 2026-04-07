@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__,2).'/helpers.php'; setCorsHeaders();
 if($_SERVER['REQUEST_METHOD']!=='POST') jsonError('POST only',405); requireAdmin();
-$id=intVal('id'); if(!$id) jsonError('id required');
+$id=intParam('id'); if(!$id) jsonError('id required');
 getDB()->prepare("UPDATE categories SET is_active=0 WHERE id=?")->execute([$id]);
 jsonSuccess([],'Deleted');

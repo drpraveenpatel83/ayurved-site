@@ -2,7 +2,7 @@
 require_once dirname(__DIR__).'/helpers.php'; setCorsHeaders();
 if($_SERVER['REQUEST_METHOD']!=='POST') jsonError('POST only',405);
 $user=requireAuth(); $db=getDB();
-$type=str('type'); $catId=intVal('category_id'); $date=str('date');
+$type=str('type'); $catId=intParam('category_id'); $date=str('date');
 $limits=['random'=>10,'daily'=>10,'practice'=>10,'weekly'=>20,'monthly'=>100,'previous_year'=>10,'mock'=>10];
 $limit=$limits[$type]??10;
 $dailyId=null;

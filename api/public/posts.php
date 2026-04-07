@@ -46,8 +46,8 @@ if (!empty($_GET['slug'])) {
 }
 
 // List posts
-$limit  = min(50, max(1, intVal('limit') ?: 10));
-$offset = max(0, intVal('offset') ?: 0);
+$limit  = min(50, max(1, intParam('limit') ?: 10));
+$offset = max(0, intParam('offset') ?: 0);
 
 $where  = ['p.is_published=1'];
 $params = [];
@@ -74,10 +74,7 @@ $sql = "SELECT p.id,p.title,p.slug,p.excerpt,p.thumbnail,
         FROM posts p
         WHERE " . implode(' AND ', $where) . "
         ORDER BY {$orderBy}
-        LIMIT ? OFFSET ?";
-
-$params[] = $limit;
-$params[] = $offset;
+        LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
@@ -85,9 +82,8 @@ $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Total count for pagination
 $countSql = "SELECT COUNT(*) FROM posts p WHERE " . implode(' AND ', $where);
-$countParams = array_slice($params, 0, -2); // remove limit/offset
 $countStmt = $db->prepare($countSql);
-$countStmt->execute($countParams);
+$countStmt->execute($params);
 $total = (int)$countStmt->fetchColumn();
 
 jsonSuccess([
