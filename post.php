@@ -176,7 +176,7 @@ $contentWithAd = insertInContentAd($post['content'] ?? '');
 <nav class="navbar">
   <div class="container nav-inner">
     <a href="/" class="nav-brand">
-      <div class="nav-brand-logo">🌿</div>
+      <img src="/assets/img/logo.png" alt="Ayurved Studies" class="nav-brand-logo">
       <div class="nav-brand-text">
         <span class="site-name">Ayurved Studies</span>
         <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
