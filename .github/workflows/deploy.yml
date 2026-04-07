@@ -7,20 +7,36 @@ on:
 
 jobs:
   deploy:
+    name: FTP Deploy to Hostinger
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # needed for changed-files detection
 
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ftp          # plain FTP — more reliable on Hostinger shared hosting
           port: 21
-          server-dir: test-site/
+          server-dir: /public_html/test-site/   # MUST start with / on Hostinger
           local-dir: ./
-          timeout: 600000
+          timeout: 60000         # 60 seconds per file
+          dangerous-clean-slate: false          # keep existing server files safe
+          log-level: verbose                    # shows every file upload in logs
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            api/config.php
+            uploads/**
+            database/set-admin-password.php
+            database/wp-rest-import.php
+            .github/**
+            .vscode/**
+            .DS_Store
