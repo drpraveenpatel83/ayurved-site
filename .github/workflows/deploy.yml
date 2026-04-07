@@ -39,7 +39,6 @@ jobs:
             database/wp-rest-import.php
             database/wp-xml-import.php
             database/wordpress-posts.xml
-            admin/**
             test-site/**
             .github/**
             .vscode/**
