@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2   # needed for changed-files detection
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -22,13 +20,12 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp          # plain FTP — more reliable on Hostinger shared hosting
+          protocol: ftp
           port: 21
-          server-dir: /public_html/test-site/   # MUST start with / on Hostinger
+          server-dir: /public_html/
           local-dir: ./
-          timeout: 60000         # 60 seconds per file
-          dangerous-clean-slate: false          # keep existing server files safe
-          log-level: verbose                    # shows every file upload in logs
+          timeout: 60000
+          log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
