@@ -29,7 +29,6 @@ jobs:
           local-dir: ./
           timeout: 60000
           log-level: verbose
-          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
@@ -38,6 +37,8 @@ jobs:
             uploads/**
             database/set-admin-password.php
             database/wp-rest-import.php
+            database/wp-xml-import.php
+            database/wordpress-posts.xml
             admin/**
             test-site/**
             .github/**
