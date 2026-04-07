@@ -25,10 +25,11 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          server-dir: /public_html/
+          server-dir: /public_html/test-site/
           local-dir: ./
           timeout: 60000
           log-level: verbose
+          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
