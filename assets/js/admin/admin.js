@@ -397,29 +397,41 @@ function openNotesModal(data = null) {
   document.getElementById('nf-published').value = data?.is_published ?? 1;
   document.getElementById('nf-order').value     = data?.display_order || 0;
 
-  // Init Quill editor
-  if (!quillInited) {
-    quillEditor = new Quill('#notes-editor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ color: [] }, { background: [] }],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          ['blockquote', 'code-block'],
-          ['link'],
-          ['clean']
-        ]
-      }
-    });
-    quillInited = true;
-  }
+  // Reset to Visual mode
+  const nEditorDiv = document.getElementById('notes-editor');
+  const nHtmlArea  = document.getElementById('notes-html-code');
+  const nVisualBtn = document.getElementById('notes-visual-btn');
+  const nHtmlBtn   = document.getElementById('notes-html-btn');
+  if (nEditorDiv) nEditorDiv.style.display = 'block';
+  if (nHtmlArea)  { nHtmlArea.style.display = 'none'; nHtmlArea.value = ''; }
+  if (nVisualBtn) { nVisualBtn.style.background = '#1a6e3c'; nVisualBtn.style.color = '#fff'; }
+  if (nHtmlBtn)   { nHtmlBtn.style.background = '#fff'; nHtmlBtn.style.color = '#5a6a7a'; }
 
-  if (data?.content) quillEditor.root.innerHTML = data.content;
-  else quillEditor.root.innerHTML = '';
-
+  // Open modal FIRST so Quill renders on visible element
   openModal('notes-modal');
+
+  // Init Quill after modal visible
+  setTimeout(() => {
+    if (!quillInited) {
+      quillEditor = new Quill('#notes-editor', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ color: [] }, { background: [] }],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['blockquote', 'code-block'],
+            ['link'],
+            ['clean']
+          ]
+        }
+      });
+      quillInited = true;
+    }
+    if (data?.content) quillEditor.root.innerHTML = data.content;
+    else quillEditor.root.innerHTML = '';
+  }, 30);
 }
 
 function editNotes(n) { openNotesModal(n); }
@@ -766,15 +778,16 @@ function openPostModal(data = null) {
   // Excerpt count
   updateExcerptCount();
 
-  // Category dropdown — try to match existing slug, else show custom
+  // Category dropdown — match slug to option value (now values are just slugs)
   const catSel = document.getElementById('pf-cat-select');
   const customRow = document.getElementById('pf-cat-custom-row');
   if (catSel) {
     const existingSlug = data?.category_slug || '';
+    const optionExists = existingSlug && Array.from(catSel.options).some(o => o.value === existingSlug);
     if (!existingSlug) {
       catSel.value = '';
       customRow && (customRow.style.display = 'none');
-    } else if (POST_CATEGORIES[existingSlug] !== undefined) {
+    } else if (optionExists) {
       catSel.value = existingSlug;
       customRow && (customRow.style.display = 'none');
     } else {
@@ -787,34 +800,47 @@ function openPostModal(data = null) {
   const slugEl = document.getElementById('pf-slug');
   if (slugEl) slugEl.dataset.manual = data ? '1' : '';
 
-  // Init post Quill editor
-  if (!postEditorInited) {
-    postQuillEditor = new Quill('#post-editor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ color: [] }, { background: [] }],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          ['blockquote', 'link', 'image'],
-          ['clean']
-        ]
-      }
-    });
-    postEditorInited = true;
-  }
-  postQuillEditor.root.innerHTML = data?.content || '';
+  // Always reset to Visual mode when opening modal
+  const editorDiv  = document.getElementById('post-editor');
+  const htmlArea   = document.getElementById('post-html-code');
+  const visualBtn  = document.getElementById('post-visual-btn');
+  const htmlBtn    = document.getElementById('post-html-btn');
+  if (editorDiv) editorDiv.style.display = 'block';
+  if (htmlArea)  { htmlArea.style.display = 'none'; htmlArea.value = ''; }
+  if (visualBtn) { visualBtn.style.background = '#1a6e3c'; visualBtn.style.color = '#fff'; }
+  if (htmlBtn)   { htmlBtn.style.background = '#fff'; htmlBtn.style.color = '#5a6a7a'; }
 
+  // Open modal FIRST so Quill renders correctly
   openModal('post-modal');
+
+  // Init post Quill editor after modal is visible
+  setTimeout(() => {
+    if (!postEditorInited) {
+      postQuillEditor = new Quill('#post-editor', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ color: [] }, { background: [] }],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['blockquote', 'link', 'image'],
+            ['clean']
+          ]
+        }
+      });
+      postEditorInited = true;
+    }
+    postQuillEditor.root.innerHTML = data?.content || '';
+  }, 30);
 }
 
 async function editPost(id, slug) {
-  const res = await apiGet(`public/posts.php?slug=${encodeURIComponent(slug)}`);
+  const res = await apiGet(`admin/posts/get.php?id=${id}`);
   if (res.success) {
     openPostModal(res.data);
   } else {
-    Toast.error('Post load nahi hua');
+    Toast.error('Post load nahi hua: ' + (res.message || ''));
   }
 }
 
@@ -823,11 +849,15 @@ async function savePost(e) {
   const btn = document.getElementById('post-save-btn');
   btn.textContent = 'Saving...'; btn.disabled = true;
 
-  // Get content — visual or HTML code mode
+  // Get content — HTML code mode or Quill visual
   const htmlCodeEl = document.getElementById('post-html-code');
-  const content = (htmlCodeEl && htmlCodeEl.style.display !== 'none')
-    ? htmlCodeEl.value
-    : (postQuillEditor ? postQuillEditor.root.innerHTML : '');
+  let content = '';
+  if (htmlCodeEl && htmlCodeEl.style.display !== 'none') {
+    content = htmlCodeEl.value;
+  } else if (postQuillEditor) {
+    content = postQuillEditor.root.innerHTML;
+    if (content === '<p><br></p>') content = ''; // empty Quill
+  }
   document.getElementById('pf-content').value = content;
 
   const payload = {
@@ -968,15 +998,16 @@ function onPostCatSelect() {
   const catEl    = document.getElementById('pf-category');
   const slugEl   = document.getElementById('pf-category-slug');
   const customRow= document.getElementById('pf-cat-custom-row');
+  const slug     = sel.value; // now just the slug (no pipe)
 
-  if (sel.value === '__custom__') {
+  if (slug === '__custom__') {
     customRow && (customRow.style.display = 'flex');
     catEl.value  = '';
     slugEl.value = '';
-  } else if (sel.value) {
+  } else if (slug) {
     customRow && (customRow.style.display = 'none');
-    slugEl.value = sel.value;
-    catEl.value  = POST_CATEGORIES[sel.value] || sel.value;
+    slugEl.value = slug;
+    catEl.value  = POST_CATEGORIES[slug] || slug;
   } else {
     customRow && (customRow.style.display = 'none');
     catEl.value  = '';
