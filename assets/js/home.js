@@ -5,7 +5,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   loadBannerSlider();
   loadNewsPosts('latest-news');
-  initMobileNav();
 });
 
 // ── Banner / Image Slider ─────────────────────────────────────
@@ -196,36 +195,7 @@ function _newsCardHtml(p, index) {
     </a>`;
 }
 
-// ── Mobile Nav ────────────────────────────────────────────────
-function initMobileNav() {
-  const burger  = document.getElementById('nav-burger');
-  const navMenu = document.getElementById('nav-menu');
-
-  if (burger && navMenu) {
-    burger.addEventListener('click', () => navMenu.classList.toggle('open'));
-  }
-
-  // Mobile dropdown toggles
-  document.querySelectorAll('.nav-dropdown-trigger').forEach(trigger => {
-    trigger.addEventListener('click', e => {
-      if (window.innerWidth > 960) return;
-      e.preventDefault();
-      const menu   = trigger.nextElementSibling;
-      const isOpen = menu.classList.contains('mob-open');
-      document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('mob-open'));
-      document.querySelectorAll('.nav-caret').forEach(c => c.style.transform = '');
-      if (!isOpen) {
-        menu.classList.add('mob-open');
-        trigger.querySelector('.nav-caret').style.transform = 'rotate(180deg)';
-      }
-    });
-  });
-
-  // Close nav on outside click
-  document.addEventListener('click', e => {
-    if (!e.target.closest('.navbar')) navMenu?.classList.remove('open');
-  });
-}
+// Mobile nav is handled globally in app.js initNavbar()
 
 // ── Helpers ───────────────────────────────────────────────────
 function esc(str) {

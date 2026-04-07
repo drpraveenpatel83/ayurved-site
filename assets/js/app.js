@@ -81,18 +81,42 @@ const Toast = (() => {
 
 // ── Navbar ─────────────────────────────────────────────────────
 function initNavbar() {
-  const loginBtn  = document.getElementById('nav-login-btn');
-  const userBtn   = document.getElementById('nav-user-btn');
-  const userName  = document.getElementById('nav-user-name');
-  const logoutBtn = document.getElementById('nav-logout-btn');
+  const burger   = document.getElementById('nav-burger');
+  const navMenu  = document.getElementById('nav-menu');
+  const loginBtn = document.getElementById('nav-login-btn');
+  const userBtn  = document.getElementById('nav-user-btn');
+  const userName = document.getElementById('nav-user-name');
+  const logoutBtn= document.getElementById('nav-logout-btn');
 
-  // Highlight active nav link
-  const links = document.querySelectorAll('.navbar-menu a');
-  links.forEach(a => {
-    if (a.href === window.location.href || window.location.pathname.startsWith(new URL(a.href, location.origin).pathname)) {
-      a.classList.add('active');
-    }
-  });
+  // ── Mobile hamburger toggle (sab pages pe kaam kare)
+  if (burger && navMenu) {
+    burger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navMenu.classList.toggle('open');
+    });
+
+    // Mobile dropdown toggles
+    document.querySelectorAll('.nav-dropdown-trigger').forEach(trigger => {
+      trigger.addEventListener('click', e => {
+        if (window.innerWidth > 960) return;
+        e.preventDefault();
+        const dd = trigger.nextElementSibling;
+        const isOpen = dd.classList.contains('mob-open');
+        document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('mob-open'));
+        document.querySelectorAll('.nav-caret').forEach(c => c.style.transform = '');
+        if (!isOpen) {
+          dd.classList.add('mob-open');
+          const caret = trigger.querySelector('.nav-caret');
+          if (caret) caret.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.navbar')) navMenu.classList.remove('open');
+    });
+  }
 
   // Auth state
   if (Auth.isLoggedIn()) {
