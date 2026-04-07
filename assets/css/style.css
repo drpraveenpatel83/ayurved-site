@@ -23,8 +23,8 @@
 
 /* ── Reset ─────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;font-size:15px;overflow-x:hidden}
 a{color:var(--primary);text-decoration:none}
 a:hover{color:var(--primary-dark)}
 img{max-width:100%;display:block}
@@ -336,3 +336,13 @@ button{cursor:pointer;font-family:var(--font)}
 
 @media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+
+/* ── Mobile Global Fixes ─────────────────────────────── */
+@media(max-width:960px){
+  .nav-menu{display:none}
+  .nav-menu.open{display:flex;flex-direction:column}
+  section,div{max-width:100%;word-wrap:break-word}
+  .news-tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .news-tabs-wrap::-webkit-scrollbar{display:none}
+  .news-tabs{flex-wrap:nowrap;min-width:max-content}
+}
