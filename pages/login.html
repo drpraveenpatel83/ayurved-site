@@ -1,75 +1,297 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Ayurveda Quiz</title>
+  <title>Login / Register | Ayurved Studies</title>
   <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body{min-height:100vh;background:linear-gradient(135deg,#f0faf5 0%,#e8f4fd 100%);display:flex;flex-direction:column}
+
+    /* ── Auth Wrapper ── */
+    .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+    .auth-box{background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.10);width:100%;max-width:440px;overflow:hidden}
+
+    /* ── Header ── */
+    .auth-header{background:linear-gradient(135deg,#1a6e3c,#0d4a28);padding:28px 32px;text-align:center;color:#fff}
+    .auth-header .logo-icon{font-size:2.2rem;margin-bottom:8px}
+    .auth-header h1{font-size:1.3rem;font-weight:800;margin-bottom:4px}
+    .auth-header p{font-size:0.82rem;opacity:.85}
+
+    /* ── Tabs ── */
+    .auth-tabs{display:flex;border-bottom:2px solid #f0f2f5}
+    .auth-tab{flex:1;padding:14px;background:none;border:none;font-size:0.92rem;font-weight:700;color:#95a5a6;cursor:pointer;transition:.2s;border-bottom:3px solid transparent;margin-bottom:-2px}
+    .auth-tab.active{color:#1a6e3c;border-bottom-color:#1a6e3c}
+
+    /* ── Forms ── */
+    .auth-body{padding:28px 32px}
+    @media(max-width:480px){.auth-body{padding:20px 18px}}
+
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;font-size:0.8rem;font-weight:700;color:#5a6a7a;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+    .form-group input,
+    .form-group select{width:100%;padding:11px 14px;border:1.5px solid #e0e6ec;border-radius:8px;font-size:0.92rem;font-family:inherit;color:#2c3e50;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
+    .form-group input:focus,
+    .form-group select:focus{border-color:#1a6e3c;box-shadow:0 0 0 3px rgba(26,110,60,0.12)}
+    .form-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2395a5a6' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+
+    .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:400px){.form-row-2{grid-template-columns:1fr}}
+
+    .input-icon-wrap{position:relative}
+    .input-icon-wrap input{padding-left:40px}
+    .input-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none}
+
+    .pw-wrap{position:relative}
+    .pw-wrap input{padding-right:44px}
+    .pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;color:#95a5a6;padding:4px}
+
+    /* ── Study Year Badge ── */
+    .year-select-wrap{position:relative}
+    .year-select-wrap .year-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:1rem;pointer-events:none}
+    .year-select-wrap select{padding-left:40px}
+
+    /* ── Btn ── */
+    .btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,#1a6e3c,#0d4a28);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s;margin-top:4px;font-family:inherit}
+    .btn-auth:hover{background:linear-gradient(135deg,#145530,#0a3a1f);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,110,60,.3)}
+    .btn-auth:disabled{opacity:.65;cursor:not-allowed;transform:none}
+
+    /* ── Divider ── */
+    .auth-divider{text-align:center;margin:16px 0;color:#95a5a6;font-size:0.8rem;position:relative}
+    .auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:#e8ecef}
+    .auth-divider::before{left:0}.auth-divider::after{right:0}
+
+    /* ── Switch link ── */
+    .auth-switch{text-align:center;margin-top:16px;font-size:0.85rem;color:#7f8c8d}
+    .auth-switch a{color:#1a6e3c;font-weight:700;text-decoration:none}
+    .auth-switch a:hover{text-decoration:underline}
+
+    /* ── Benefits list ── */
+    .auth-benefits{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+    .auth-benefit{background:#e8f5ee;color:#1a6e3c;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:20px}
+
+    /* ── Error ── */
+    .auth-error{background:#fdecea;color:#c0392b;border-radius:6px;padding:10px 14px;font-size:0.84rem;margin-bottom:14px;display:none}
+    .auth-error.show{display:block}
+
+    /* ── Password strength ── */
+    .pw-strength{height:4px;border-radius:2px;margin-top:6px;transition:.3s;background:#e8ecef}
+    .pw-strength.weak{background:#e74c3c;width:33%}
+    .pw-strength.medium{background:#e67e22;width:66%}
+    .pw-strength.strong{background:#27ae60;width:100%}
+    .pw-hint{font-size:0.72rem;color:#95a5a6;margin-top:4px}
+
+    /* ── Footer ── */
+    .auth-footer{text-align:center;padding:16px;font-size:0.78rem;color:#95a5a6}
+    .auth-footer a{color:#1a6e3c}
+  </style>
 </head>
-<body class="auth-page">
+<body>
 
-<div class="auth-card">
-  <div class="logo">
-    <img src="/assets/img/logo.png" alt="Logo" onerror="this.style.display='none'" style="width:56px;margin:0 auto 8px">
-    <h1>🌿 Ayurveda Quiz</h1>
-    <p class="text-muted text-small">BAMS, AIAPGET, Govt Exam Preparation</p>
+<!-- Navbar minimal -->
+<nav class="navbar" style="box-shadow:none;border-bottom:1px solid #e8ecef">
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <div class="nav-brand-logo">🌿</div>
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">BAMS · AIAPGET · NCISM · AYUSH</span>
+      </div>
+    </a>
+    <a href="/" class="btn btn-outline btn-sm">← Back to Home</a>
   </div>
+</nav>
 
-  <!-- Tabs -->
-  <div class="auth-tabs">
-    <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
-    <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+<div class="auth-wrap">
+  <div class="auth-box">
+
+    <!-- Header -->
+    <div class="auth-header">
+      <div class="logo-icon">🌿</div>
+      <h1>Ayurved Studies</h1>
+      <p>India's Free Ayurveda Learning Platform</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">🔑 Login</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">✨ Register Free</button>
+    </div>
+
+    <!-- ── LOGIN FORM ── -->
+    <div class="auth-body" id="login-body">
+      <div class="auth-error" id="login-error"></div>
+
+      <form onsubmit="doLogin(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">📧</span>
+            <input type="email" id="login-email" placeholder="your@email.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="login-pass" placeholder="Enter your password" required autocomplete="current-password">
+            <button type="button" class="pw-toggle" onclick="togglePw('login-pass',this)">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth" id="login-btn">Login to Account →</button>
+      </form>
+
+      <div class="auth-switch">
+        Account nahi hai? <a href="#" onclick="switchTab('register')">Register Free karein</a>
+      </div>
+    </div>
+
+    <!-- ── REGISTER FORM ── -->
+    <div class="auth-body hidden" id="register-body">
+
+      <div class="auth-benefits">
+        <span class="auth-benefit">✅ Free BAMS Notes</span>
+        <span class="auth-benefit">🎯 AIAPGET MCQ</span>
+        <span class="auth-benefit">📅 Daily Quiz</span>
+        <span class="auth-benefit">📰 AYUSH Updates</span>
+      </div>
+
+      <div class="auth-error" id="reg-error"></div>
+
+      <form onsubmit="doRegister(event)">
+        <!-- Name -->
+        <div class="form-group">
+          <label>Full Name *</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="reg-name" placeholder="Dr. Rahul Sharma" required autocomplete="name">
+          </div>
+        </div>
+
+        <!-- Email + Phone -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Email *</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon">📧</span>
+              <input type="email" id="reg-email" placeholder="your@email.com" required autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon">📱</span>
+              <input type="tel" id="reg-phone" placeholder="10-digit" maxlength="10">
+            </div>
+          </div>
+        </div>
+
+        <!-- Study Year -->
+        <div class="form-group">
+          <label>Current Study Level *</label>
+          <div class="year-select-wrap">
+            <span class="year-icon">🎓</span>
+            <select id="reg-year" required>
+              <option value="">— Select your level —</option>
+              <optgroup label="BAMS (UG)">
+                <option value="bams-1st-year">BAMS 1st Year</option>
+                <option value="bams-2nd-year">BAMS 2nd Year</option>
+                <option value="bams-3rd-year">BAMS 3rd Year</option>
+                <option value="bams-final-year">BAMS Final Year</option>
+                <option value="bams-intern">BAMS Intern</option>
+              </optgroup>
+              <optgroup label="PG / Postgraduate">
+                <option value="pg-md-ms">MD/MS Ayurveda (PG)</option>
+                <option value="pg-phd">PhD Ayurveda</option>
+              </optgroup>
+              <optgroup label="Competitive Exams">
+                <option value="aiapget-aspirant">AIAPGET Aspirant</option>
+                <option value="ncism-aspirant">NCISM Exam Aspirant</option>
+                <option value="govt-exam-aspirant">Govt / State PSC Aspirant</option>
+              </optgroup>
+              <optgroup label="Professional">
+                <option value="ayurveda-doctor">Ayurveda Doctor (Practitioner)</option>
+                <option value="faculty">Faculty / Teacher</option>
+              </optgroup>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label>Password *</label>
+          <div class="pw-wrap">
+            <input type="password" id="reg-pass" placeholder="Min 6 characters" required minlength="6"
+                   autocomplete="new-password" oninput="checkPwStrength(this.value)">
+            <button type="button" class="pw-toggle" onclick="togglePw('reg-pass',this)">👁</button>
+          </div>
+          <div class="pw-strength" id="pw-strength-bar"></div>
+          <div class="pw-hint" id="pw-hint">Password strength indicator</div>
+        </div>
+
+        <button type="submit" class="btn-auth" id="reg-btn">Create Free Account →</button>
+      </form>
+
+      <div class="auth-switch">
+        Pehle se account hai? <a href="#" onclick="switchTab('login')">Login karein</a>
+      </div>
+
+      <div style="text-align:center;margin-top:14px;font-size:0.72rem;color:#aaa">
+        Register karke aap hamare <a href="/privacy-policy/" style="color:#1a6e3c">Privacy Policy</a> se agree karte hain
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <!-- Login Form -->
-  <form id="login-form" onsubmit="doLogin(event)">
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="login-email" placeholder="apna@email.com" required autocomplete="email">
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="login-pass" placeholder="••••••••" required autocomplete="current-password">
-    </div>
-    <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-btn">Login →</button>
-    <div class="text-center mt-2">
-      <a href="#" onclick="switchTab('register')" class="text-small">Account nahi hai? Register karein</a>
-    </div>
-  </form>
-
-  <!-- Register Form -->
-  <form id="register-form" class="hidden" onsubmit="doRegister(event)">
-    <div class="form-group">
-      <label>Pura Naam</label>
-      <input type="text" id="reg-name" placeholder="Aapka naam" required autocomplete="name">
-    </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="reg-email" placeholder="apna@email.com" required autocomplete="email">
-    </div>
-    <div class="form-group">
-      <label>Phone (optional)</label>
-      <input type="tel" id="reg-phone" placeholder="10-digit mobile number" maxlength="10">
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="reg-pass" placeholder="Min 6 characters" required minlength="6" autocomplete="new-password">
-    </div>
-    <button type="submit" class="btn btn-primary btn-block btn-lg" id="reg-btn">Register →</button>
-    <div class="text-center mt-2">
-      <a href="#" onclick="switchTab('login')" class="text-small">Pehle se account hai? Login karein</a>
-    </div>
-  </form>
+<div class="auth-footer">
+  © 2025 Ayurved Studies · <a href="/privacy-policy/">Privacy Policy</a> · <a href="/">Home</a>
 </div>
 
 <script src="/assets/js/app.js"></script>
 <script>
+// Redirect if already logged in
+if (Auth.isLoggedIn()) window.location.href = '/';
+
+// Check URL param for tab
+const urlTab = new URLSearchParams(location.search).get('tab');
+if (urlTab === 'register') switchTab('register');
+
 function switchTab(tab) {
-  document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
-  document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('login-body').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('register-body').classList.toggle('hidden', tab !== 'register');
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+}
+
+function togglePw(id, btn) {
+  const input = document.getElementById(id);
+  const isText = input.type === 'text';
+  input.type = isText ? 'password' : 'text';
+  btn.textContent = isText ? '👁' : '🙈';
+}
+
+function checkPwStrength(val) {
+  const bar  = document.getElementById('pw-strength-bar');
+  const hint = document.getElementById('pw-hint');
+  if (!val) { bar.className = 'pw-strength'; hint.textContent = 'Password strength indicator'; return; }
+  const strong = val.length >= 8 && /[A-Z]/.test(val) && /[0-9]/.test(val);
+  const medium = val.length >= 6;
+  if (strong) { bar.className = 'pw-strength strong'; hint.textContent = '💪 Strong password'; }
+  else if (medium) { bar.className = 'pw-strength medium'; hint.textContent = '⚠️ Medium — numbers/uppercase add karein'; }
+  else { bar.className = 'pw-strength weak'; hint.textContent = '❌ Weak — minimum 6 characters'; }
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
 }
 
 async function doLogin(e) {
@@ -78,20 +300,20 @@ async function doLogin(e) {
   btn.disabled = true; btn.textContent = 'Logging in...';
 
   const res = await apiPost('public/auth/login.php', {
-    email: document.getElementById('login-email').value,
+    email:    document.getElementById('login-email').value,
     password: document.getElementById('login-pass').value
   });
 
   if (res.success) {
     Auth.setToken(res.data.token);
     Auth.setUser(res.data.user);
-    Toast.success('Login successful!');
+    btn.textContent = '✅ Login successful!';
     const redirect = sessionStorage.getItem('aq_redirect') || '/';
     sessionStorage.removeItem('aq_redirect');
     setTimeout(() => window.location.href = redirect, 600);
   } else {
-    Toast.error(res.message || 'Login failed');
-    btn.disabled = false; btn.textContent = 'Login →';
+    showError('login-error', '❌ ' + (res.message || 'Login failed. Email ya password galat hai.'));
+    btn.disabled = false; btn.textContent = 'Login to Account →';
   }
 }
 
@@ -101,27 +323,25 @@ async function doRegister(e) {
   btn.disabled = true; btn.textContent = 'Creating account...';
 
   const res = await apiPost('public/auth/register.php', {
-    name: document.getElementById('reg-name').value,
-    email: document.getElementById('reg-email').value,
-    phone: document.getElementById('reg-phone').value,
-    password: document.getElementById('reg-pass').value
+    name:          document.getElementById('reg-name').value,
+    email:         document.getElementById('reg-email').value,
+    phone:         document.getElementById('reg-phone').value,
+    password:      document.getElementById('reg-pass').value,
+    year_of_study: document.getElementById('reg-year').value
   });
 
   if (res.success) {
     Auth.setToken(res.data.token);
     Auth.setUser(res.data.user);
-    Toast.success('Account ban gaya! Welcome 🎉');
+    btn.textContent = '🎉 Account created!';
     const redirect = sessionStorage.getItem('aq_redirect') || '/';
     sessionStorage.removeItem('aq_redirect');
     setTimeout(() => window.location.href = redirect, 800);
   } else {
-    Toast.error(res.message || 'Registration failed');
-    btn.disabled = false; btn.textContent = 'Register →';
+    showError('reg-error', '❌ ' + (res.message || 'Registration failed. Dobara try karein.'));
+    btn.disabled = false; btn.textContent = 'Create Free Account →';
   }
 }
-
-// Redirect if already logged in
-if (Auth.isLoggedIn()) window.location.href = '/';
 </script>
 </body>
 </html>
