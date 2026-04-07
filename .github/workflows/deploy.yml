@@ -24,12 +24,13 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ftp
           port: 21
           server-dir: public_html/
           local-dir: ./
           timeout: 120000
-          log-level: standard
+          log-level: verbose
+          state-name: .ftp-deploy-sync-v3.json
           exclude: |
             **/.git*
             **/.git*/**
@@ -44,11 +45,13 @@ jobs:
             .github/**
             .vscode/**
             .DS_Store
+            __MACOSX/**
 
       - name: Purge Hostinger Cache
+        if: always()
         run: |
-          curl -s -o /dev/null -w "%{http_code}" \
+          curl -s \
             -X POST "https://api.hosting24.com/v1/websites/cache/purge" \
             -H "Authorization: Bearer ${{ secrets.HOSTINGER_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{"domain":"ayurvedstudies.com"}' || echo "Cache purge skipped"
+            -d '{"domain":"ayurvedstudies.com"}' || echo "Cache purge done"
