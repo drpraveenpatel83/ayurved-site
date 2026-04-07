@@ -266,10 +266,9 @@ button{cursor:pointer;font-family:var(--font)}
 .news-section-title{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px}
 .news-section-sub{font-size:0.88rem;color:var(--text-mid)}
 /* Tabs */
-.news-tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:24px}
-.news-tabs-wrap::-webkit-scrollbar{display:none}
-.news-tabs{display:flex;gap:8px;min-width:max-content;padding:4px 0}
-.news-tab{background:#f0f4f8;border:none;border-radius:24px;padding:8px 18px;font-size:0.84rem;font-weight:600;color:var(--text-mid);cursor:pointer;white-space:nowrap;transition:.18s;font-family:var(--font)}
+.news-tabs-wrap{margin-bottom:24px}
+.news-tabs{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
+.news-tab{background:#f0f4f8;border:none;border-radius:24px;padding:8px 16px;font-size:0.82rem;font-weight:600;color:var(--text-mid);cursor:pointer;white-space:nowrap;transition:.18s;font-family:var(--font)}
 .news-tab:hover{background:#e0efe8;color:var(--primary)}
 .news-tab.active{background:var(--primary);color:#fff}
 /* News posts grid — 2 columns */
@@ -333,40 +332,56 @@ button{cursor:pointer;font-family:var(--font)}
 .tag.outline{background:transparent;border:1.5px solid var(--border);color:var(--text-mid)}
 
 /* ── Footer ─────────────────────────────────────────── */
-.footer{background:#1a2332;color:rgba(255,255,255,.8);margin-top:40px}
-.footer-top{padding:36px 0 28px}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px}
-.footer-logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.footer-logo{width:44px;height:44px;border-radius:10px;object-fit:contain;flex-shrink:0}
-.footer-brand .site-name{font-size:1.05rem;font-weight:800;color:#fff}
-.footer-brand p{font-size:0.82rem;opacity:.6;line-height:1.7;margin-top:6px}
-.footer-social{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-.footer-social a{font-size:0.78rem;color:rgba(255,255,255,.7);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 12px;transition:.18s;text-decoration:none}
-.footer-social a:hover{color:#fff;background:rgba(255,255,255,.15)}
-.footer-col h4{font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:12px}
-.footer-col a{display:block;font-size:0.82rem;color:rgba(255,255,255,.65);margin-bottom:9px;transition:.18s;word-break:break-word;text-decoration:none}
-.footer-col a:hover{color:#fff;padding-left:4px}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding:14px 0;text-align:center;font-size:0.78rem;opacity:.5;word-wrap:break-word}
+.footer{background:#111c2d;color:rgba(255,255,255,.8);margin-top:40px}
+.footer-top{padding:40px 0 32px}
+.footer-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:32px;align-items:start}
+
+/* Brand */
+.footer-logo-wrap{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.footer-logo{width:46px;height:46px;border-radius:10px;object-fit:contain;flex-shrink:0;background:rgba(255,255,255,.06);padding:2px}
+.footer-brand .site-name{font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:-.01em}
+.footer-brand p{font-size:0.82rem;color:rgba(255,255,255,.5);line-height:1.75;margin-top:4px;max-width:260px}
+.footer-social{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.footer-social a{font-size:0.78rem;font-weight:600;color:rgba(255,255,255,.75);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:6px 14px;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.footer-social a:hover{color:#fff;background:var(--primary);border-color:var(--primary)}
+
+/* Divider between brand and links on desktop */
+.footer-brand{padding-right:16px;border-right:1px solid rgba(255,255,255,.06)}
+
+/* Link columns */
+.footer-col h4{font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.07)}
+.footer-col a{display:flex;align-items:center;gap:6px;font-size:0.82rem;color:rgba(255,255,255,.58);margin-bottom:10px;transition:.18s;text-decoration:none}
+.footer-col a::before{content:'›';font-size:0.9rem;color:var(--primary);flex-shrink:0;transition:.18s}
+.footer-col a:hover{color:#fff}
+.footer-col a:hover::before{transform:translateX(2px)}
+
+/* Bottom bar */
+.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding:16px 0;text-align:center;font-size:0.78rem;color:rgba(255,255,255,.35)}
 
 @media(max-width:900px){
-  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:0}
+  .footer-brand{grid-column:1/-1;border-right:none;border-bottom:1px solid rgba(255,255,255,.07);padding:0 0 24px;margin-bottom:24px}
+  .footer-col{padding:0 12px 20px 0}
   .footer-top{padding:28px 0 20px}
-  .footer-brand{grid-column:1/-1}
 }
 @media(max-width:480px){
-  .footer-grid{grid-template-columns:1fr 1fr;gap:20px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:0}
   .footer-brand{grid-column:1/-1}
-  .footer-bottom{font-size:0.72rem;padding:12px 0}
+  .footer-brand p{max-width:100%}
+  .footer-social{gap:6px}
+  .footer-col{padding:0 8px 18px 0}
+  .footer-bottom{font-size:0.72rem;padding:14px 0;line-height:1.6}
 }
 
 /* ── Mobile Global Fixes ─────────────────────────────── */
-@media(max-width:960px){
-  .news-tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px}
-  .news-tabs-wrap::-webkit-scrollbar{display:none}
-  .news-tabs{flex-wrap:nowrap;min-width:max-content}
-  .cat-cards{gap:8px}
-  .cat-card{padding:8px 14px 8px 10px}
-  .cat-card .name{font-size:0.8rem}
+@media(max-width:640px){
+  .cat-cards{gap:7px}
+  .cat-card{padding:7px 13px 7px 10px}
+  .cat-card .icon{font-size:1.1rem}
+  .cat-card .name{font-size:0.78rem}
+  .cat-card .count{display:none}
+  .news-section-title{font-size:1.2rem}
+  .news-tab{padding:7px 13px;font-size:0.78rem}
 }
 /* Slider track must NOT have max-width:100% or it breaks */
 .slider-track{max-width:none!important}
