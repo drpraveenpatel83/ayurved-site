@@ -1,0 +1,17 @@
+# Test Site — Subfolder routing
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /test-site/
+
+  # Skip real files and directories
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Category pages
+  RewriteRule ^category/([^/]+)/?$ /test-site/pages/category.html?slug=$1 [L,QSA]
+
+  # Blog post URLs
+  RewriteRule ^([a-z0-9][a-z0-9\-]+[a-z0-9])/?$ /test-site/post.php?slug=$1 [L,QSA]
+</IfModule>

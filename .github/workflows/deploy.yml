@@ -38,6 +38,8 @@ jobs:
             uploads/**
             database/set-admin-password.php
             database/wp-rest-import.php
+            admin/**
+            test-site/**
             .github/**
             .vscode/**
             .DS_Store

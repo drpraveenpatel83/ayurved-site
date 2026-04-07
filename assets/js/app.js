@@ -2,7 +2,11 @@
    app.js — Global helpers, API client, Auth, Toast, Navbar
    ============================================================ */
 
-const API_BASE = '/api';
+// Auto-detect base path (works for both /  and  /test-site/)
+const _pathParts = window.location.pathname.split('/');
+const _subdir    = _pathParts[1] && !_pathParts[1].includes('.') &&
+                   _pathParts[1] !== 'api' ? '/' + _pathParts[1] : '';
+const API_BASE   = _subdir + '/api';
 
 // ── Token storage ────────────────────────────────────────────
 const Auth = {
