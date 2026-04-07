@@ -24,7 +24,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps        # Hostinger FTPS support karta hai — zyada reliable
+          protocol: ftps
           port: 21
           server-dir: public_html/
           local-dir: ./
@@ -44,3 +44,11 @@ jobs:
             .github/**
             .vscode/**
             .DS_Store
+
+      - name: Purge Hostinger Cache
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "https://api.hosting24.com/v1/websites/cache/purge" \
+            -H "Authorization: Bearer ${{ secrets.HOSTINGER_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"domain":"ayurvedstudies.com"}' || echo "Cache purge skipped"
