@@ -226,3 +226,29 @@ INSERT INTO `categories` (`parent_id`,`name`,`slug`,`type`,`display_order`) VALU
 -- Default banner
 INSERT INTO `banners` (`image_url`,`title`,`subtitle`,`display_order`,`is_active`) VALUES
 ('/assets/img/banner-default.jpg','🌿 Ayurveda Quiz & Notes','BAMS, AIAPGET, Govt Exams ki taiyari karein',1,1);
+
+-- ── Mock Tests ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `mock_tests` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `title` VARCHAR(255) NOT NULL,
+  `exam_type` ENUM('aiapget','govt_exam') DEFAULT 'aiapget',
+  `total_questions` INT DEFAULT 100,
+  `time_minutes` INT DEFAULT 90,
+  `is_published` TINYINT(1) DEFAULT 0,
+  `description` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `mock_test_questions` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `test_id` INT UNSIGNED NOT NULL,
+  `question_text` TEXT NOT NULL,
+  `option_a` VARCHAR(500) DEFAULT NULL,
+  `option_b` VARCHAR(500) DEFAULT NULL,
+  `option_c` VARCHAR(500) DEFAULT NULL,
+  `option_d` VARCHAR(500) DEFAULT NULL,
+  `correct_option` CHAR(1) NOT NULL,
+  `explanation` TEXT DEFAULT NULL,
+  `order_no` INT DEFAULT 0,
+  FOREIGN KEY (`test_id`) REFERENCES `mock_tests`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

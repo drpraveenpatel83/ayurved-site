@@ -51,6 +51,7 @@
       <a data-panel="questions" onclick="showPanel('questions')"><span class="nav-icon">❓</span> Questions</a>
       <a data-panel="daily-quiz" onclick="showPanel('daily-quiz')"><span class="nav-icon">📅</span> Daily Quiz</a>
       <a data-panel="notes" onclick="showPanel('notes')"><span class="nav-icon">📖</span> Notes & Syllabus</a>
+      <a data-panel="tests" onclick="showPanel('tests')"><span class="nav-icon">📋</span> Mock Tests</a>
       <div class="admin-nav-section">Setup</div>
       <a data-panel="categories" onclick="showPanel('categories')"><span class="nav-icon">📚</span> Categories</a>
       <a data-panel="banners" onclick="showPanel('banners')"><span class="nav-icon">🖼</span> Banners</a>
@@ -196,6 +197,20 @@
           <table class="admin-table">
             <thead><tr><th>#</th><th>Title</th><th>Category</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="notes-tbody"><tr><td colspan="6" style="text-align:center;padding:20px">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── MOCK TESTS ─────────────────────────────────────── -->
+      <div class="admin-panel" id="panel-tests">
+        <div class="panel-header">
+          <div class="panel-title">Mock Tests (AIAPGET / Govt Exam)</div>
+          <button class="btn-admin btn-admin-primary" onclick="openTestModal()">➕ Add Test</button>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Test Title</th><th>Exam Type</th><th>Questions</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="tests-tbody"><tr><td colspan="7" style="text-align:center;padding:20px">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -363,8 +378,15 @@
 
       <!-- ⑤ CONTENT EDITOR -->
       <div style="margin-bottom:18px">
-        <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a;display:block;margin-bottom:8px">Post Content *</label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5a6a7a">Post Content *</label>
+          <div style="display:flex;gap:0;border:1.5px solid #e0e6ec;border-radius:6px;overflow:hidden">
+            <button type="button" id="post-visual-btn" onclick="switchPostMode('visual')" style="padding:4px 12px;font-size:0.78rem;font-weight:600;background:#1a6e3c;color:#fff;border:none;cursor:pointer">Visual</button>
+            <button type="button" id="post-html-btn" onclick="switchPostMode('html')" style="padding:4px 12px;font-size:0.78rem;font-weight:600;background:#fff;color:#5a6a7a;border:none;border-left:1.5px solid #e0e6ec;cursor:pointer">HTML Code</button>
+          </div>
+        </div>
         <div id="post-editor" style="min-height:320px;font-size:0.95rem"></div>
+        <textarea id="post-html-code" placeholder="HTML code yahan paste karein..." style="display:none;width:100%;min-height:320px;font-family:monospace;font-size:0.82rem;padding:12px;border:1.5px solid #e0e6ec;border-radius:0 0 8px 8px;resize:vertical;box-sizing:border-box"></textarea>
         <input type="hidden" id="pf-content">
       </div>
 
@@ -477,10 +499,15 @@
           <input type="text" id="nf-title" required placeholder="Notes title...">
         </div>
         <div class="form-field" style="grid-column:1/-1">
-          <label>Content (HTML supported — use editor below)</label>
-          <div id="ql-editor-container">
-            <div id="notes-editor" style="min-height:300px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label style="margin:0">Content</label>
+            <div style="display:flex;gap:0;border:1.5px solid #e0e6ec;border-radius:6px;overflow:hidden">
+              <button type="button" id="notes-visual-btn" onclick="switchNotesMode('visual')" style="padding:4px 12px;font-size:0.78rem;font-weight:600;background:#1a6e3c;color:#fff;border:none;cursor:pointer">Visual</button>
+              <button type="button" id="notes-html-btn" onclick="switchNotesMode('html')" style="padding:4px 12px;font-size:0.78rem;font-weight:600;background:#fff;color:#5a6a7a;border:none;border-left:1.5px solid #e0e6ec;cursor:pointer">HTML Code</button>
+            </div>
           </div>
+          <div id="notes-editor" style="min-height:300px"></div>
+          <textarea id="notes-html-code" placeholder="HTML code yahan paste karein..." style="display:none;width:100%;min-height:300px;font-family:monospace;font-size:0.82rem;padding:12px;border:1.5px solid #e0e6ec;border-radius:0 0 8px 8px;resize:vertical;box-sizing:border-box"></textarea>
         </div>
         <div class="form-field">
           <label>Published</label>
@@ -605,6 +632,81 @@
         <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('banner-modal')">Cancel</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Test Modal -->
+<div id="test-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;overflow-y:auto;display:none">
+  <div style="background:white;max-width:720px;margin:24px auto;border-radius:12px;padding:28px 32px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #f0f2f5">
+      <h3 id="test-modal-title" style="font-size:1.1rem;font-weight:800">New Mock Test</h3>
+      <button onclick="closeModal('test-modal')" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#95a5a6">✕</button>
+    </div>
+    <form id="test-form" onsubmit="saveTest(event)">
+      <input type="hidden" id="tf-id">
+      <div class="form-row">
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Test Title *</label>
+          <input type="text" id="tf-title" required placeholder="e.g. AIAPGET 2025 Full Mock Test - Set 1">
+        </div>
+        <div class="form-field">
+          <label>Exam Type *</label>
+          <select id="tf-type" required>
+            <option value="aiapget">AIAPGET</option>
+            <option value="govt_exam">Govt / State Exam</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Total Questions</label>
+          <input type="number" id="tf-total" value="100" min="1" max="200">
+        </div>
+        <div class="form-field">
+          <label>Time Limit (minutes)</label>
+          <input type="number" id="tf-time" value="90" min="10" max="300">
+        </div>
+        <div class="form-field">
+          <label>Published</label>
+          <select id="tf-published">
+            <option value="1">Yes (Live)</option>
+            <option value="0">Draft</option>
+          </select>
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Description (optional)</label>
+          <textarea id="tf-desc" rows="2" placeholder="Test ke baare mein brief description..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-admin btn-admin-primary" id="tf-submit-btn">Save & Add Questions</button>
+        <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('test-modal')">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Test CSV Upload Modal -->
+<div id="test-csv-modal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;overflow-y:auto;display:none">
+  <div style="background:white;max-width:680px;margin:24px auto;border-radius:12px;padding:28px 32px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #f0f2f5">
+      <h3 id="test-csv-title" style="font-size:1.1rem;font-weight:800">Upload Questions — CSV</h3>
+      <button onclick="closeModal('test-csv-modal')" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#95a5a6">✕</button>
+    </div>
+    <input type="hidden" id="tc-test-id">
+    <div style="background:#E8F8F0;border:1px solid #A9DFBF;border-radius:8px;padding:14px;margin-bottom:16px;font-size:0.83rem">
+      <strong>CSV Format (columns):</strong><br>
+      <code style="font-size:0.79rem">question_text, option_a, option_b, option_c, option_d, correct_option (a/b/c/d), explanation</code><br><br>
+      <strong>Note:</strong> Pehli row header hogi — skip ho jayegi.<br>
+      <a href="#" onclick="downloadTestSampleCsv()" style="color:var(--primary)">📥 Sample CSV Download</a>
+    </div>
+    <div class="upload-area" id="tc-drop-area" onclick="document.getElementById('tc-file-input').click()" style="cursor:pointer">
+      <div class="icon">📄</div>
+      <p>CSV file yahan drag karein ya click karein</p>
+      <input type="file" id="tc-file-input" accept=".csv" onchange="uploadTestCsv(this.files[0])" style="display:none">
+    </div>
+    <div id="tc-result" style="margin-top:14px"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('test-csv-modal')">Close</button>
+    </div>
   </div>
 </div>
 

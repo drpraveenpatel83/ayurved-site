@@ -84,6 +84,7 @@ function showPanel(name) {
   // Lazy load
   if (name === 'posts')      loadPosts();
   if (name === 'notes')      loadNotesList();
+  if (name === 'tests')      loadTests();
   if (name === 'categories') loadCategoriesList();
   if (name === 'banners')    loadBannersList();
 
@@ -425,7 +426,10 @@ function editNotes(n) { openNotesModal(n); }
 
 async function saveNotes(e) {
   e.preventDefault();
-  const content = quillEditor ? quillEditor.root.innerHTML : '';
+  const notesHtmlEl = document.getElementById('notes-html-code');
+  const content = (notesHtmlEl && notesHtmlEl.style.display !== 'none')
+    ? notesHtmlEl.value
+    : (quillEditor ? quillEditor.root.innerHTML : '');
   const body = {
     id:           parseInt(document.getElementById('nf-id').value) || 0,
     category_id:  parseInt(document.getElementById('nf-cat').value),
@@ -819,8 +823,11 @@ async function savePost(e) {
   const btn = document.getElementById('post-save-btn');
   btn.textContent = 'Saving...'; btn.disabled = true;
 
-  // Get content from Quill
-  const content = postQuillEditor ? postQuillEditor.root.innerHTML : '';
+  // Get content — visual or HTML code mode
+  const htmlCodeEl = document.getElementById('post-html-code');
+  const content = (htmlCodeEl && htmlCodeEl.style.display !== 'none')
+    ? htmlCodeEl.value
+    : (postQuillEditor ? postQuillEditor.root.innerHTML : '');
   document.getElementById('pf-content').value = content;
 
   const payload = {
@@ -975,4 +982,177 @@ function onPostCatSelect() {
     catEl.value  = '';
     slugEl.value = '';
   }
+}
+
+// ── Post Editor Mode Toggle ────────────────────────────────────
+function switchPostMode(mode) {
+  const visualBtn = document.getElementById('post-visual-btn');
+  const htmlBtn   = document.getElementById('post-html-btn');
+  const editorDiv = document.getElementById('post-editor');
+  const htmlArea  = document.getElementById('post-html-code');
+
+  if (mode === 'html') {
+    // Copy Quill content to textarea
+    if (postQuillEditor) htmlArea.value = postQuillEditor.root.innerHTML;
+    editorDiv.style.display = 'none';
+    htmlArea.style.display  = 'block';
+    htmlBtn.style.background   = '#1a6e3c'; htmlBtn.style.color = '#fff';
+    visualBtn.style.background = '#fff';    visualBtn.style.color = '#5a6a7a';
+  } else {
+    // Copy textarea HTML back to Quill
+    if (postQuillEditor && htmlArea.value) postQuillEditor.root.innerHTML = htmlArea.value;
+    htmlArea.style.display  = 'none';
+    editorDiv.style.display = 'block';
+    visualBtn.style.background = '#1a6e3c'; visualBtn.style.color = '#fff';
+    htmlBtn.style.background   = '#fff';    htmlBtn.style.color = '#5a6a7a';
+  }
+}
+
+// ── Notes Editor Mode Toggle ───────────────────────────────────
+function switchNotesMode(mode) {
+  const visualBtn = document.getElementById('notes-visual-btn');
+  const htmlBtn   = document.getElementById('notes-html-btn');
+  const editorDiv = document.getElementById('notes-editor');
+  const htmlArea  = document.getElementById('notes-html-code');
+
+  if (mode === 'html') {
+    if (quillEditor) htmlArea.value = quillEditor.root.innerHTML;
+    editorDiv.style.display = 'none';
+    htmlArea.style.display  = 'block';
+    htmlBtn.style.background   = '#1a6e3c'; htmlBtn.style.color = '#fff';
+    visualBtn.style.background = '#fff';    visualBtn.style.color = '#5a6a7a';
+  } else {
+    if (quillEditor && htmlArea.value) quillEditor.root.innerHTML = htmlArea.value;
+    htmlArea.style.display  = 'none';
+    editorDiv.style.display = 'block';
+    visualBtn.style.background = '#1a6e3c'; visualBtn.style.color = '#fff';
+    htmlBtn.style.background   = '#fff';    htmlBtn.style.color = '#5a6a7a';
+  }
+}
+
+// ── Mock Tests ─────────────────────────────────────────────────
+async function loadTests() {
+  const res = await apiGet('admin/tests/list.php');
+  const tbody = document.getElementById('tests-tbody');
+  if (!res.success || !res.data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:#95a5a6">Koi test nahi hai. ➕ Add Test karo.</td></tr>';
+    return;
+  }
+  const typeLabel = { aiapget: 'AIAPGET', govt_exam: 'Govt Exam' };
+  tbody.innerHTML = res.data.map((t, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong>${escHtml(t.title)}</strong>${t.description ? `<br><small style="color:#95a5a6">${escHtml(t.description)}</small>` : ''}</td>
+      <td><span class="badge-active">${typeLabel[t.exam_type] || t.exam_type}</span></td>
+      <td>${t.total_questions}</td>
+      <td>${t.time_minutes} min</td>
+      <td>${t.is_published ? '<span class="badge-published">Live</span>' : '<span class="badge-draft">Draft</span>'}</td>
+      <td class="actions">
+        <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="openTestCsvModal(${t.id},'${escHtml(t.title).replace(/'/g,"\\'")}')">📥 CSV</button>
+        <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="editTest(${JSON.stringify(t).replace(/'/g,"&#39;")})">✏️</button>
+        <button class="btn-admin btn-admin-red btn-admin-sm" onclick="deleteTest(${t.id})">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openTestModal(data = null) {
+  document.getElementById('test-modal-title').textContent = data ? 'Edit Test' : 'New Mock Test';
+  document.getElementById('tf-id').value        = data?.id || '';
+  document.getElementById('tf-title').value     = data?.title || '';
+  document.getElementById('tf-type').value      = data?.exam_type || 'aiapget';
+  document.getElementById('tf-total').value     = data?.total_questions || 100;
+  document.getElementById('tf-time').value      = data?.time_minutes || 90;
+  document.getElementById('tf-published').value = data?.is_published ?? 0;
+  document.getElementById('tf-desc').value      = data?.description || '';
+  openModal('test-modal');
+}
+
+function editTest(t) { openTestModal(t); }
+
+async function saveTest(e) {
+  e.preventDefault();
+  const btn = document.getElementById('tf-submit-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  const id = document.getElementById('tf-id').value;
+  const body = {
+    id:              id ? parseInt(id) : null,
+    title:           document.getElementById('tf-title').value,
+    exam_type:       document.getElementById('tf-type').value,
+    total_questions: parseInt(document.getElementById('tf-total').value),
+    time_minutes:    parseInt(document.getElementById('tf-time').value),
+    is_published:    parseInt(document.getElementById('tf-published').value),
+    description:     document.getElementById('tf-desc').value
+  };
+  const res = await apiPost('admin/tests/save.php', body);
+  btn.textContent = 'Save & Add Questions'; btn.disabled = false;
+  if (res.success) {
+    closeModal('test-modal');
+    Toast.success(res.message || 'Test saved!');
+    loadTests();
+    // Auto-open CSV upload for new tests
+    if (!id && res.data?.id) openTestCsvModal(res.data.id, body.title);
+  } else {
+    Toast.error(res.message || 'Save failed');
+  }
+}
+
+async function deleteTest(id) {
+  if (!confirm('Yah test aur uske sab questions delete ho jayenge. Sure?')) return;
+  const res = await apiDelete('admin/tests/delete.php', { id });
+  if (res.success) { Toast.success('Test deleted'); loadTests(); }
+  else Toast.error(res.message || 'Delete failed');
+}
+
+function openTestCsvModal(testId, title) {
+  document.getElementById('tc-test-id').value = testId;
+  document.getElementById('test-csv-title').textContent = `Upload Questions — ${title}`;
+  document.getElementById('tc-result').innerHTML = '';
+  const fi = document.getElementById('tc-file-input');
+  if (fi) fi.value = '';
+  openModal('test-csv-modal');
+}
+
+async function uploadTestCsv(file) {
+  if (!file) return;
+  const testId = document.getElementById('tc-test-id').value;
+  const resultEl = document.getElementById('tc-result');
+  resultEl.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const formData = new FormData();
+  formData.append('csv', file);
+  formData.append('test_id', testId);
+
+  const token = localStorage.getItem('admin_token');
+  try {
+    const resp = await fetch(`${API_BASE}/admin/tests/import-csv.php`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+    const res = await resp.json();
+    if (res.success) {
+      resultEl.innerHTML = `<div style="background:#E8F8F0;border:1px solid #A9DFBF;border-radius:8px;padding:14px">
+        <strong style="color:#1a6e3c">✅ ${res.data.inserted} questions import ho gayi!</strong>
+        ${res.data.errors > 0 ? `<br><small style="color:#E74C3C">${res.data.errors} rows skip hui (errors)</small>` : ''}
+      </div>`;
+      loadTests();
+    } else {
+      resultEl.innerHTML = `<div style="background:#fdf0f0;border:1px solid #f5c6c6;border-radius:8px;padding:12px;color:#E74C3C">${res.message}</div>`;
+    }
+  } catch(err) {
+    resultEl.innerHTML = `<div style="color:#E74C3C">Upload failed: ${err.message}</div>`;
+  }
+}
+
+function downloadTestSampleCsv() {
+  const rows = [
+    ['question_text','option_a','option_b','option_c','option_d','correct_option','explanation'],
+    ['Charaka Samhita ke anusaar rasa kitne prakar ke hote hain?','4','5','6','8','c','Charaka ne 6 rasa bataye hain'],
+    ['AIAPGET 2024 mein kitne questions the?','100','120','150','200','b','AIAPGET mein 120 questions hote hain']
+  ];
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'test_questions_sample.csv';
+  a.click();
 }
