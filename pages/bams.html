@@ -198,12 +198,12 @@ async function loadSubjects(slug) {
     const res      = await apiGet(`public/subjects.php?parent=${encodeURIComponent(slug)}`);
     const subjects = res?.data?.subjects || [];
     if (!subjects.length) {
-      wrap.innerHTML = `<div class="empty-subjects"><div class="icon">📚</div><h3>Koi subject nahi mila</h3><p>Admin se subjects add karwayein</p></div>`;
+      wrap.innerHTML = `<div class="empty-subjects"><div class="icon">📚</div><h3>No subjects found</h3><p>Subjects will be added soon</p></div>`;
       return;
     }
     wrap.innerHTML = `<div class="subjects-grid">${subjects.map(subjectCard).join('')}</div>`;
   } catch {
-    wrap.innerHTML = `<div class="empty-subjects"><div class="icon">⚠️</div><h3>Load nahi hua</h3><p>Page refresh karein</p></div>`;
+    wrap.innerHTML = `<div class="empty-subjects"><div class="icon">⚠️</div><h3>Could not load</h3><p>Please refresh the page</p></div>`;
   }
 }
 

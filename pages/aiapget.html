@@ -1,38 +1,47 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIAPGET | Ayurveda Quiz</title>
+  <title>AIAPGET Preparation | Ayurved Studies</title>
   <link rel="stylesheet" href="/assets/css/style.css">
-  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
 </head>
 <body>
 
 <nav class="navbar">
-  <div class="container navbar-inner">
-    <a href="/" class="navbar-brand"><span>🌿 Ayurveda Quiz</span></a>
-    <div class="navbar-menu" id="nav-menu">
-      <a href="/">Home</a><a href="/pages/bams.html?year=1">BAMS</a>
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/assets/img/logo.png" alt="Ayurved Studies" class="nav-brand-logo">
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
+      </div>
+    </a>
+    <div class="nav-menu" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/pages/bams.html">BAMS</a>
       <a href="/pages/aiapget.html" class="active">AIAPGET</a>
-      <a href="/pages/samhita.html">Samhita</a><a href="/pages/govt-exam.html">Govt Exams</a>
+      <a href="/pages/quiz.html">Quiz</a>
+      <a href="/pages/login.html" class="nav-mobile-login">Login / Register</a>
     </div>
-    <div class="navbar-actions">
-      <a href="/pages/login.html" class="btn btn-primary btn-sm" id="nav-login-btn">Login</a>
+    <div class="nav-actions">
+      <div id="nav-login-btn">
+        <a href="/pages/login.html" class="btn btn-primary btn-sm">Login</a>
+      </div>
       <div class="hidden" id="nav-user-btn">
-        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name">User</span></a>
-        <button id="nav-logout-btn" class="btn btn-sm" style="background:none;border:none;color:var(--text-mid)">Logout</button>
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name"></span></a>
       </div>
     </div>
-    <button class="navbar-hamburger" id="nav-burger">☰</button>
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">☰</button>
   </div>
 </nav>
 
-<div class="page-header" style="background:linear-gradient(135deg,#C0392B,#922B21)">
+<div class="page-header" style="background:linear-gradient(135deg,#C0392B,#922B21);padding:28px 0">
   <div class="container">
-    <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>AIAPGET</span></div>
-    <h1>🎯 AIAPGET Preparation</h1>
-    <p>Previous Year Questions + Mock Tests</p>
+    <div class="breadcrumb"><a href="/" style="color:rgba(255,255,255,0.7)">Home</a><span style="color:rgba(255,255,255,0.5)"> › </span><span style="color:#fff">AIAPGET</span></div>
+    <h1 style="color:#fff;font-size:1.5rem;margin:8px 0 4px">🎯 AIAPGET Preparation</h1>
+    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem">Previous Year Questions + Mock Tests</p>
   </div>
 </div>
 
@@ -41,17 +50,13 @@
   <!-- Info box -->
   <div class="card mb-3" style="border-left:4px solid #C0392B">
     <h3 style="color:#C0392B;margin-bottom:8px">All India Ayurveda PG Entrance Test</h3>
-    <p class="text-muted" style="font-size:0.9rem">200 MCQs · 3 Hours · Negative Marking. Yahan aapko milenge PYQ papers aur full mock tests.</p>
+    <p class="text-muted" style="font-size:0.9rem">200 MCQs · 3 Hours · Negative Marking. Access PYQ papers and full-length mock tests here.</p>
   </div>
 
   <div id="aiapget-main">
     <div class="spinner-wrap"><div class="spinner"></div></div>
   </div>
 </div>
-
-<footer class="footer">
-  <div class="container"><div class="footer-bottom">© 2025 Ayurveda Quiz & Notes</div></div>
-</footer>
 
 <script src="/assets/js/app.js"></script>
 <script>
@@ -61,7 +66,7 @@ async function loadAIAPGET() {
   const main = document.getElementById('aiapget-main');
 
   if (!Auth.isLoggedIn()) {
-    showLoginGate(main, 'AIAPGET tests access karne ke liye login karein');
+    showLoginGate(main, 'Please login to access AIAPGET tests');
     return;
   }
 
@@ -75,7 +80,6 @@ async function loadAIAPGET() {
   const parent = res.data[0];
   const children = parent.children || [];
 
-  // Separate PYQ and Mock tests
   const pyqs  = children.filter(c => c.name.toLowerCase().includes('pyq') || c.name.toLowerCase().includes('previous'));
   const mocks = children.filter(c => c.name.toLowerCase().includes('mock'));
   const others= children.filter(c => !pyqs.includes(c) && !mocks.includes(c));

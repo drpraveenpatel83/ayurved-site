@@ -34,8 +34,8 @@ async function initQuizPage() {
   if (!res.success) {
     document.getElementById('quiz-main').innerHTML = `
       <div class="empty-state"><div class="icon">⚠️</div>
-      <h3>Quiz load nahi hua</h3><p>${res.message}</p>
-      <a href="/" class="btn btn-primary mt-2">Home jao</a></div>`;
+      <h3>Quiz could not be loaded</h3><p>${res.message}</p>
+      <a href="/" class="btn btn-primary mt-2">Go to Home</a></div>`;
     return;
   }
 
@@ -65,14 +65,14 @@ function setupAntiCheat() {
   document.addEventListener('contextmenu', e => e.preventDefault());
 
   // Block copy/cut
-  document.addEventListener('copy', e => { e.preventDefault(); Toast.warn('Content copy nahi kar sakte!'); });
+  document.addEventListener('copy', e => { e.preventDefault(); Toast.warn('Copying is not allowed during quiz!'); });
   document.addEventListener('cut',  e => { e.preventDefault(); });
 
   // Block print screen warning (can't prevent but can warn)
   document.addEventListener('keydown', e => {
     if (e.key === 'PrintScreen' || (e.ctrlKey && (e.key === 'p' || e.key === 'P'))) {
       e.preventDefault();
-      Toast.warn('Screenshot/Print allowed nahi hai!');
+      Toast.warn('Screenshot/Print is not allowed!');
     }
     // Block ctrl+U (view source), ctrl+S
     if (e.ctrlKey && ['u', 'U', 's', 'S'].includes(e.key)) e.preventDefault();
@@ -87,7 +87,7 @@ function setupAntiCheat() {
         // Will show warning when user returns
       }
     } else if (warnCount > 0) {
-      Toast.warn(`Tab switch detected (${warnCount}x). Exam mein dhyan rakhein!`);
+      Toast.warn(`Tab switch detected (${warnCount}x). Stay focused during the exam!`);
     }
   });
 }
@@ -194,8 +194,8 @@ function showSubmitSection() {
 
   main.innerHTML = `
     <div class="submit-section">
-      <h3>🎯 Quiz Submit karne ke liye ready hain?</h3>
-      <p>Ek baar submit karne ke baad aap answers change nahi kar sakte</p>
+      <h3>🎯 Ready to Submit?</h3>
+      <p>Once submitted, you cannot change your answers.</p>
       <div class="submit-stats">
         <div class="stat"><div class="val">${total}</div><div class="lbl">Total</div></div>
         <div class="stat"><div class="val" style="color:var(--green)">${ans}</div><div class="lbl">Answered</div></div>
@@ -209,7 +209,7 @@ function showSubmitSection() {
         }).join('')}
       </div>
       <div style="display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap">
-        <button class="btn btn-outline" onclick="goQuestion(0)">← Wapas Review karein</button>
+        <button class="btn btn-outline" onclick="goQuestion(0)">← Review Answers</button>
         <button class="btn btn-green btn-lg" onclick="submitQuiz()">✅ Final Submit</button>
       </div>
     </div>`;
@@ -261,7 +261,7 @@ function startTimer() {
     updateDisplay();
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      Toast.warn('Time up! Auto-submitting...');
+      Toast.warn('Time is up! Auto-submitting...');
       setTimeout(submitQuiz, 1500);
     }
   }, 1000);

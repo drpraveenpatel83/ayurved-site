@@ -60,7 +60,7 @@ function insertInContentAd($content) {
      style="display:block;text-align:center"
      data-ad-layout="in-article"
      data-ad-format="fluid"
-     data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+     data-ad-client="ca-pub-1300049746675872"
      data-ad-slot="XXXXXXXXXX"></ins>
 <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>';
@@ -96,7 +96,7 @@ $contentWithAd = insertInContentAd($post['content'] ?? '');
   <?php endif; ?>
 
   <!-- Google AdSense — SIRF post page pe load hota hai -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1300049746675872" crossorigin="anonymous"></script>
 
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="icon" type="image/png" href="/assets/img/favicon.png">
@@ -219,7 +219,7 @@ $contentWithAd = insertInContentAd($post['content'] ?? '');
   <div class="ad-top-banner">
     <ins class="adsbygoogle"
          style="display:block"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+         data-ad-client="ca-pub-1300049746675872"
          data-ad-slot="XXXXXXXXXX"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
@@ -272,7 +272,7 @@ $contentWithAd = insertInContentAd($post['content'] ?? '');
       <div class="ad-below-content">
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+             data-ad-client="ca-pub-1300049746675872"
              data-ad-slot="XXXXXXXXXX"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
@@ -325,7 +325,7 @@ $contentWithAd = insertInContentAd($post['content'] ?? '');
       <div class="ad-sidebar-box">
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+             data-ad-client="ca-pub-1300049746675872"
              data-ad-slot="XXXXXXXXXX"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
@@ -370,7 +370,7 @@ $contentWithAd = insertInContentAd($post['content'] ?? '');
       <div class="ad-sidebar-box">
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+             data-ad-client="ca-pub-1300049746675872"
              data-ad-slot="XXXXXXXXXX"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>

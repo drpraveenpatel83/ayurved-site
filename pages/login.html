@@ -146,7 +146,7 @@
       </form>
 
       <div class="auth-switch">
-        Account nahi hai? <a href="#" onclick="switchTab('register')">Register Free karein</a>
+        Don't have an account? <a href="#" onclick="switchTab('register')">Register Free</a>
       </div>
     </div>
 
@@ -222,11 +222,11 @@
       </form>
 
       <div class="auth-switch">
-        Pehle se account hai? <a href="#" onclick="switchTab('login')">Login karein</a>
+        Already have an account? <a href="#" onclick="switchTab('login')">Login here</a>
       </div>
 
       <div style="text-align:center;margin-top:14px;font-size:0.72rem;color:#aaa">
-        Register karke aap hamare <a href="/privacy-policy/" style="color:#1a6e3c">Privacy Policy</a> se agree karte hain
+        By registering you agree to our <a href="/privacy-policy/" style="color:#1a6e3c">Privacy Policy</a>
       </div>
     </div>
 
@@ -267,7 +267,7 @@ function checkPwStrength(val) {
   const strong = val.length >= 8 && /[A-Z]/.test(val) && /[0-9]/.test(val);
   const medium = val.length >= 6;
   if (strong) { bar.className = 'pw-strength strong'; hint.textContent = '💪 Strong password'; }
-  else if (medium) { bar.className = 'pw-strength medium'; hint.textContent = '⚠️ Medium — numbers/uppercase add karein'; }
+  else if (medium) { bar.className = 'pw-strength medium'; hint.textContent = '⚠️ Medium — add numbers/uppercase for stronger password'; }
   else { bar.className = 'pw-strength weak'; hint.textContent = '❌ Weak — minimum 6 characters'; }
 }
 
@@ -322,7 +322,7 @@ async function doRegister(e) {
     sessionStorage.removeItem('aq_redirect');
     setTimeout(() => window.location.href = redirect, 800);
   } else {
-    showError('reg-error', '❌ ' + (res.message || 'Registration failed. Dobara try karein.'));
+    showError('reg-error', '❌ ' + (res.message || 'Registration failed. Please try again.'));
     btn.disabled = false; btn.textContent = 'Create Free Account →';
   }
 }

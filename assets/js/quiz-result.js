@@ -11,7 +11,7 @@ async function initResultPage() {
 
   if (!shareToken && !Auth.isLoggedIn()) {
     const main = document.getElementById('result-main');
-    if (main) showLoginGate(main, 'Result dekhne ke liye login karein');
+    if (main) showLoginGate(main, 'Please login to view your result');
     return;
   }
 

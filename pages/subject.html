@@ -248,7 +248,7 @@ function renderNotes() {
   const wrap = document.getElementById('notes-wrap');
   const notes = _data?.notes || [];
   if (!notes.length) {
-    wrap.innerHTML = `<div class="empty-tab"><div class="icon">📝</div><p>Is subject ke liye abhi notes add nahi hue</p></div>`;
+    wrap.innerHTML = `<div class="empty-tab"><div class="icon">📝</div><p>No notes have been added for this subject yet</p></div>`;
     return;
   }
   wrap.innerHTML = `<div class="notes-list">${notes.map(n => `
@@ -266,7 +266,7 @@ function renderPdfs() {
   const wrap = document.getElementById('pdf-wrap');
   const pdfs = _data?.pdfs || [];
   if (!pdfs.length) {
-    wrap.innerHTML = `<div class="empty-tab"><div class="icon">📄</div><p>Is subject ke liye koi PDF upload nahi hua</p></div>`;
+    wrap.innerHTML = `<div class="empty-tab"><div class="icon">📄</div><p>No PDFs uploaded for this subject yet</p></div>`;
     return;
   }
   wrap.innerHTML = `<div class="pdf-list">${pdfs.map(p => `
@@ -287,7 +287,7 @@ function renderTests() {
   const wrap  = document.getElementById('tests-wrap');
   const tests = _data?.tests || [];
   if (!tests.length) {
-    wrap.innerHTML = `<div class="empty-tab"><div class="icon">🎯</div><p>Is subject ke liye koi test assign nahi hua</p></div>`;
+    wrap.innerHTML = `<div class="empty-tab"><div class="icon">🎯</div><p>No tests have been assigned to this subject yet</p></div>`;
     return;
   }
   wrap.innerHTML = `<div class="tests-list">${tests.map(t => `

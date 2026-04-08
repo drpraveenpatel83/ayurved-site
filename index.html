@@ -127,6 +127,47 @@
   <!-- dots & controls injected by JS -->
 </section>
 
+<!-- ── Quick Quiz Actions ─────────────────────────── -->
+<div class="quick-quiz-bar">
+  <div class="container quick-quiz-inner">
+    <a href="/pages/quiz.html?type=daily" class="qqb-btn qqb-daily">
+      <span class="qqb-icon">📅</span>
+      <span class="qqb-label">Daily Quiz</span>
+    </a>
+    <a href="/pages/quiz.html?type=weekly" class="qqb-btn qqb-weekly">
+      <span class="qqb-icon">📆</span>
+      <span class="qqb-label">Weekly Test</span>
+    </a>
+    <a href="/pages/quiz.html?type=random" class="qqb-btn qqb-random">
+      <span class="qqb-icon">🎲</span>
+      <span class="qqb-label">Random 20Q</span>
+    </a>
+    <a href="/pages/quiz.html?type=mock" class="qqb-btn qqb-mock">
+      <span class="qqb-icon">🏆</span>
+      <span class="qqb-label">AIAPGET Mock</span>
+    </a>
+    <a href="/pages/quiz.html" class="qqb-btn qqb-all">
+      <span class="qqb-icon">🎯</span>
+      <span class="qqb-label">All Quizzes</span>
+    </a>
+  </div>
+</div>
+<style>
+.quick-quiz-bar{background:#fff;border-bottom:2px solid var(--border);padding:0}
+.quick-quiz-inner{display:flex;align-items:stretch;gap:0;overflow-x:auto;scrollbar-width:none}
+.quick-quiz-inner::-webkit-scrollbar{display:none}
+.qqb-btn{display:flex;align-items:center;gap:7px;padding:13px 18px;font-size:0.82rem;font-weight:700;color:var(--text);text-decoration:none;border-right:1px solid var(--border);white-space:nowrap;transition:.18s;flex-shrink:0}
+.qqb-btn:hover{background:#f0faf5;color:var(--primary)}
+.qqb-icon{font-size:1.1rem;line-height:1}
+.qqb-daily:hover{color:#E67E22;background:#fff8f0}
+.qqb-weekly{color:var(--blue)}.qqb-weekly:hover{background:#e8f4fd;color:var(--blue)}
+.qqb-random:hover{color:#8e44ad;background:#f5f0fb}
+.qqb-mock:hover{color:#c0392b;background:#fdf0f0}
+.qqb-all{border-right:none;background:var(--primary);color:#fff!important;margin-left:auto}
+.qqb-all:hover{background:var(--primary-dark)!important}
+@media(max-width:600px){.qqb-btn{padding:11px 14px;font-size:0.76rem}.qqb-all{margin-left:0}}
+</style>
+
 <!-- ── Category Cards ──────────────────────────────── -->
 <section class="categories-section">
   <div class="container">

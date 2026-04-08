@@ -143,7 +143,7 @@ function requireLogin(redirectBack = true) {
 }
 
 // ── Show login gate instead of content ─────────────────────────
-function showLoginGate(container, message = 'Quiz attempt karne ke liye login karein') {
+function showLoginGate(container, message = 'Please login to attempt this quiz') {
   container.innerHTML = `
     <div class="login-gate">
       <div class="icon">🔐</div>
@@ -169,13 +169,13 @@ function todayStr() {
   return new Date().toISOString().split('T')[0];
 }
 function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('hi-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 // ── Share helpers ───────────────────────────────────────────────
 function shareResult(score, total, shareToken) {
   const pct  = Math.round((score / total) * 100);
-  const msg  = `🌿 Ayurveda Quiz Result\n✅ Score: ${score}/${total} (${pct}%)\n📊 ${pct >= 70 ? 'बहुत अच्छा! 🎉' : 'अभ्यास जारी रखें 💪'}\n\nResult देखें: ${location.origin}/pages/result.html?share=${shareToken}`;
+  const msg  = `🌿 Ayurveda Quiz Result\n✅ Score: ${score}/${total} (${pct}%)\n📊 ${pct >= 70 ? 'Great job! 🎉' : 'Keep practicing! 💪'}\n\nView Result: ${location.origin}/pages/result.html?share=${shareToken}`;
   return {
     whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`,
     twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent(msg)}`,

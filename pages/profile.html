@@ -279,9 +279,9 @@ async function loadHistory() {
       wrap.innerHTML = `
         <div class="profile-empty">
           <div class="empty-icon">📝</div>
-          <h3>Abhi tak koi quiz attempt nahi kiya</h3>
-          <p>Practice karo aur apna score yahan track karo</p>
-          <a href="/pages/quiz.html" class="btn btn-primary">Quiz Start Karein →</a>
+          <h3>No quizzes attempted yet</h3>
+          <p>Start practicing and track your scores here</p>
+          <a href="/pages/quiz.html" class="btn btn-primary">Start a Quiz →</a>
         </div>`;
       updateStats([]);
       return;
@@ -290,7 +290,7 @@ async function loadHistory() {
     updateStats(data);
     wrap.innerHTML = `<div class="history-list">${data.map(a => historyCard(a)).join('')}</div>`;
   } catch {
-    wrap.innerHTML = `<div class="profile-empty"><div class="empty-icon">⚠️</div><h3>Load nahi hua</h3><p>Page refresh karein</p></div>`;
+    wrap.innerHTML = `<div class="profile-empty"><div class="empty-icon">⚠️</div><h3>Could not load</h3><p>Please refresh the page</p></div>`;
   }
 }
 

@@ -1,49 +1,222 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz | Ayurveda Quiz</title>
+  <title>Quiz | Ayurved Studies</title>
+  <meta name="description" content="Practice Ayurveda MCQs — Daily Quiz, Weekly Test, AIAPGET Mock, PYQ, Random Quiz and more.">
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="stylesheet" href="/assets/css/quiz.css">
-  <link rel="icon" href="/assets/img/logo.png" type="image/png">
+  <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+  <!-- AdSense Auto Ads -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1300049746675872" crossorigin="anonymous"></script>
 </head>
-<body class="quiz-page">
+<body>
 
-<!-- Quiz Header (sticky) -->
-<div class="quiz-header">
-  <div class="container quiz-header-inner">
-    <div>
-      <div class="title" id="quiz-title">Ayurveda Quiz</div>
-      <div class="sub" id="quiz-subtitle">Loading...</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="quiz-timer hidden" id="quiz-timer">
-        ⏱ <span id="quiz-timer-val">--:--</span>
+<!-- ── Navbar ─────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/assets/img/logo.png" alt="Ayurved Studies" class="nav-brand-logo">
+      <div class="nav-brand-text">
+        <span class="site-name">Ayurved Studies</span>
+        <span class="site-tagline">NCISM · AIAPGET · BAMS · AYUSH</span>
       </div>
-      <span class="text-small text-muted" id="header-q-info"></span>
+    </a>
+    <div class="nav-menu" id="nav-menu">
+      <a href="/">Home</a>
+      <a href="/pages/bams.html">BAMS</a>
+      <a href="/pages/quiz.html" class="active">Quiz</a>
+      <a href="/pages/login.html" class="nav-mobile-login">Login / Register</a>
     </div>
+    <div class="nav-actions">
+      <div id="nav-login-btn">
+        <a href="/pages/login.html" class="btn btn-primary btn-sm">Login</a>
+      </div>
+      <div class="hidden" id="nav-user-btn">
+        <a href="/pages/profile.html" class="btn btn-outline btn-sm">👤 <span id="nav-user-name"></span></a>
+      </div>
+    </div>
+    <button class="nav-hamburger" id="nav-burger" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- ── Selection Page ───────────────────────────────── -->
+<div id="quiz-selection-page">
+
+  <div class="page-header" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));padding:32px 0">
+    <div class="container" style="text-align:center">
+      <h1 style="color:#fff;font-size:1.7rem;margin-bottom:6px">🎯 Ayurveda Quiz</h1>
+      <p style="color:rgba(255,255,255,0.85);font-size:0.95rem">Choose your quiz type and start practicing</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:32px 18px 60px">
+
+    <!-- Random 20Q highlight -->
+    <div class="quiz-random-banner" onclick="startQuiz('random')" style="cursor:pointer">
+      <div class="qrb-left">
+        <div class="qrb-icon">🎲</div>
+        <div>
+          <div class="qrb-title">Random Quiz — 20 Questions</div>
+          <div class="qrb-sub">Random mix from all Ayurveda topics · No timer</div>
+        </div>
+      </div>
+      <button class="btn btn-primary">Start Now →</button>
+    </div>
+
+    <!-- Quiz type grid -->
+    <div class="quiz-type-grid">
+
+      <div class="quiz-type-card" onclick="startQuiz('daily')">
+        <div class="qtc-icon">📅</div>
+        <div class="qtc-title">Daily Quiz</div>
+        <div class="qtc-sub">10 MCQs · Updated every day</div>
+        <div class="qtc-badge qtc-badge-green">Free · Daily</div>
+      </div>
+
+      <div class="quiz-type-card" onclick="startQuiz('weekly')">
+        <div class="qtc-icon">📆</div>
+        <div class="qtc-title">Weekly Test</div>
+        <div class="qtc-sub">20 Questions · Every week</div>
+        <div class="qtc-badge qtc-badge-blue">Weekly</div>
+      </div>
+
+      <div class="quiz-type-card" onclick="startQuiz('mock')">
+        <div class="qtc-icon">🏆</div>
+        <div class="qtc-title">AIAPGET Mock</div>
+        <div class="qtc-sub">Full length mock test · 100Q</div>
+        <div class="qtc-badge qtc-badge-red">Mock Test</div>
+      </div>
+
+      <div class="quiz-type-card" onclick="startQuiz('previous_year')">
+        <div class="qtc-icon">📋</div>
+        <div class="qtc-title">Previous Year Questions</div>
+        <div class="qtc-sub">PYQ from AIAPGET & Govt Exams</div>
+        <div class="qtc-badge qtc-badge-orange">PYQ</div>
+      </div>
+
+      <div class="quiz-type-card" onclick="startQuiz('govt')">
+        <div class="qtc-icon">🏛</div>
+        <div class="qtc-title">Govt Exam Quiz</div>
+        <div class="qtc-sub">State PSC, UPSC AYUSH, NHM</div>
+        <div class="qtc-badge qtc-badge-green">Govt Exams</div>
+      </div>
+
+      <div class="quiz-type-card" onclick="window.location.href='/pages/bams.html'">
+        <div class="qtc-icon">📚</div>
+        <div class="qtc-title">Subject-wise Quiz</div>
+        <div class="qtc-sub">BAMS 1st / 2nd / 3rd Prof subjects</div>
+        <div class="qtc-badge qtc-badge-blue">BAMS</div>
+      </div>
+
+    </div>
+
+    <!-- Info strip -->
+    <div class="quiz-info-strip">
+      <div class="qis-item"><span class="qis-icon">🔐</span><span>Login required to attempt quizzes</span></div>
+      <div class="qis-item"><span class="qis-icon">📊</span><span>Track your scores in My Profile</span></div>
+      <div class="qis-item"><span class="qis-icon">🚫</span><span>Copy/screenshot disabled during quiz</span></div>
+    </div>
+
   </div>
 </div>
 
-<!-- Main quiz content (injected by quiz-player.js) -->
-<div class="container" style="padding-top:8px;padding-bottom:40px">
-  <div id="quiz-main">
-    <div class="spinner-wrap"><div class="spinner"></div></div>
+<!-- ── Quiz Player Page ──────────────────────────────── -->
+<div id="quiz-player-page" style="display:none">
+
+  <!-- Quiz Header (sticky) -->
+  <div class="quiz-header">
+    <div class="container quiz-header-inner">
+      <div>
+        <div class="title" id="quiz-title">Ayurveda Quiz</div>
+        <div class="sub" id="quiz-subtitle">Loading...</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="quiz-timer hidden" id="quiz-timer">
+          ⏱ <span id="quiz-timer-val">--:--</span>
+        </div>
+        <span class="text-small text-muted" id="header-q-info"></span>
+        <a href="/pages/quiz.html" class="btn btn-outline btn-sm" title="Back to quiz selection">✕ Exit</a>
+      </div>
+    </div>
   </div>
+
+  <!-- Main quiz content (injected by quiz-player.js) -->
+  <div class="container" style="padding-top:8px;padding-bottom:40px">
+    <div id="quiz-main">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
 </div>
 
 <script src="/assets/js/app.js"></script>
 <script>
-  // Set quiz title from URL params
+  const _quizTypes = {
+    daily:         { title: 'Daily Quiz',              sub: '10 Questions' },
+    random:        { title: 'Random Quiz',             sub: '20 Random MCQs' },
+    weekly:        { title: 'Weekly Test',             sub: '20 Questions' },
+    mock:          { title: 'AIAPGET Mock Test',       sub: 'Full Mock Test' },
+    previous_year: { title: 'Previous Year Questions', sub: 'PYQ' },
+    govt:          { title: 'Govt Exam Quiz',          sub: 'State PSC / UPSC AYUSH' },
+    practice:      { title: 'Practice Quiz',           sub: 'Practice MCQs' }
+  };
+
+  function startQuiz(type) {
+    window.location.href = `/pages/quiz.html?type=${type}`;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const p = Params.all();
-    const titles = { daily:'Daily Quiz', random:'Random Quiz', weekly:'Weekly Quiz', monthly:'Monthly Quiz', previous_year:'Previous Year Questions', mock:'Mock Test', practice:'Practice Test' };
-    const subs = { daily:'Aaj ke 10 Questions', random:'10 Random MCQs', weekly:'20 Questions', monthly:'100 Questions', previous_year:'PYQ', mock:'Full Mock Test' };
-    document.getElementById('quiz-title').textContent = titles[p.type] || 'Quiz';
-    document.getElementById('quiz-subtitle').textContent = subs[p.type] || '';
+    if (p.type) {
+      // Show quiz player
+      document.getElementById('quiz-selection-page').style.display = 'none';
+      document.getElementById('quiz-player-page').style.display = '';
+      document.body.classList.add('quiz-body');
+      const meta = _quizTypes[p.type] || { title: 'Quiz', sub: '' };
+      document.getElementById('quiz-title').textContent = meta.title;
+      document.getElementById('quiz-subtitle').textContent = meta.sub;
+    } else {
+      // Show selection page — nothing to do, it's visible by default
+      document.body.classList.remove('quiz-body');
+    }
   });
 </script>
 <script src="/assets/js/quiz-player.js"></script>
+
+<style>
+/* ── Quiz Selection Styles ────────────────────────────── */
+.quiz-random-banner{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.qrb-left{display:flex;align-items:center;gap:16px}
+.qrb-icon{font-size:2.2rem;flex-shrink:0}
+.qrb-title{font-size:1.1rem;font-weight:700;margin-bottom:3px}
+.qrb-sub{font-size:0.85rem;opacity:0.85}
+.quiz-random-banner .btn-primary{background:#fff;color:var(--primary);flex-shrink:0}
+.quiz-random-banner:hover{opacity:0.95}
+
+.quiz-type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.quiz-type-card{background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:.2s;border:2px solid transparent;text-align:left}
+.quiz-type-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.qtc-icon{font-size:1.8rem;margin-bottom:10px}
+.qtc-title{font-size:0.97rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.qtc-sub{font-size:0.8rem;color:var(--text-mid);margin-bottom:10px}
+.qtc-badge{display:inline-block;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:20px}
+.qtc-badge-green{background:#e8f5e9;color:#2e7d32}
+.qtc-badge-blue{background:#e3f2fd;color:#1565c0}
+.qtc-badge-red{background:#fce4ec;color:#c62828}
+.qtc-badge-orange{background:#fff3e0;color:#e65100}
+
+.quiz-info-strip{display:flex;flex-wrap:wrap;gap:12px;background:#f8f9fa;border-radius:10px;padding:16px 20px;border:1px solid var(--border)}
+.qis-item{display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-mid)}
+.qis-icon{font-size:1rem}
+
+@media(max-width:600px){
+  .quiz-random-banner{flex-direction:column;align-items:flex-start}
+  .quiz-type-grid{grid-template-columns:repeat(2,1fr)}
+  .quiz-info-strip{flex-direction:column}
+}
+</style>
+
 </body>
 </html>
